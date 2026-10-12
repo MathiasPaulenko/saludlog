@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+build/
+
+# production
+*.tsbuildinfo
+next-env.d.ts
+
+# data — saludlog.db y cualquier dato personal, NUNCA subir (repo público)
+data/
+*.db
+*.sqlite*
+
+# env
+.env*
+
+# misc
+.DS_Store
+coverage/
+
+# notas internas de diseño/investigación — no publicar
+ref/
