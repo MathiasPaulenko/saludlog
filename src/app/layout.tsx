@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppNav } from "@/components/app-nav";
+import { SwRegister } from "@/components/sw-register";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,6 +17,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "saludlog",
   description: "Registro personal de salud: comidas, entrenos, hábitos y peso.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#18181b",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -34,6 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </aside>
           <main className="flex-1 px-8 py-6">{children}</main>
         </div>
+        <SwRegister />
       </body>
     </html>
   );

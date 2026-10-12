@@ -6,9 +6,15 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-export function WeekNav({ date }: { date: string }) {
+export function WeekNav({
+  date,
+  basePath = "/workouts",
+}: {
+  date: string;
+  basePath?: string;
+}) {
   const router = useRouter();
-  const go = (d: string) => router.push(`/workouts?date=${d}`);
+  const go = (d: string) => router.push(`${basePath}?date=${d}`);
   const today = format(new Date(), "yyyy-MM-dd");
 
   const current = new Date(`${date}T12:00:00`);

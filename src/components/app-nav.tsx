@@ -2,8 +2,10 @@
 
 import {
   Apple,
+  CalendarRange,
   Dumbbell,
   House,
+  Lightbulb,
   ListChecks,
   Scale,
   Target,
@@ -19,6 +21,8 @@ const SECTIONS = [
   { href: "/workouts", label: "Entrenos", icon: Dumbbell },
   { href: "/habits", label: "Hábitos", icon: ListChecks },
   { href: "/metrics", label: "Peso", icon: Scale },
+  { href: "/weekly", label: "Semana", icon: CalendarRange },
+  { href: "/insights", label: "Insights", icon: Lightbulb },
   { href: "/foods", label: "Alimentos", icon: Apple },
   { href: "/settings", label: "Metas", icon: Target },
 ];

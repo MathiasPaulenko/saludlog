@@ -15,6 +15,41 @@ export default function SettingsPage() {
       <Suspense fallback={<p className="text-muted-foreground">Cargando…</p>}>
         <GoalsSection />
       </Suspense>
+      <ExportSection />
+    </div>
+  );
+}
+
+const CSV_DOMAINS = [
+  ["foods", "Alimentos"],
+  ["meals", "Comidas"],
+  ["workouts", "Entrenos"],
+  ["habits", "Hábitos"],
+  ["metrics", "Peso"],
+] as const;
+
+function ExportSection() {
+  return (
+    <div className="flex max-w-md flex-col gap-3 rounded-lg border border-border p-4">
+      <h2 className="text-lg font-semibold">Exportar datos</h2>
+      <a
+        href="/api/export"
+        className="w-fit text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+      >
+        JSON completo (saludlog-export.json)
+      </a>
+      <div className="flex flex-col gap-1">
+        <p className="text-xs text-muted-foreground">CSV por dominio:</p>
+        {CSV_DOMAINS.map(([domain, label]) => (
+          <a
+            key={domain}
+            href={`/api/export/csv?domain=${domain}`}
+            className="w-fit text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+          >
+            {label} (saludlog-{domain}.csv)
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
