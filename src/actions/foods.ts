@@ -15,6 +15,8 @@ const foodSchema = z.object({
   fat: z.coerce.number().min(0),
   baseAmount: z.coerce.number().positive(),
   baseUnit: z.enum(["g", "ml", "unit"]),
+  source: z.enum(["manual", "openfoodfacts"]).default("manual"),
+  sourceId: z.string().optional(),
 });
 
 const idSchema = z.number().int().positive();
@@ -32,7 +34,7 @@ export async function createFood(input: unknown): Promise<ActionResult> {
     return { ok: false, error: "Ya existe un alimento con ese nombre" };
   }
 
-  db.insert(foods).values({ ...parsed.data, source: "manual" }).run();
+  db.insert(foods).values(parsed.data).run();
   revalidatePath("/foods");
   revalidatePath("/meals");
   return { ok: true };

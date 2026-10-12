@@ -6,9 +6,15 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function DateNav({ date }: { date: string }) {
+export function DateNav({
+  date,
+  basePath = "/meals",
+}: {
+  date: string;
+  basePath?: string;
+}) {
   const router = useRouter();
-  const go = (d: string) => router.push(`/meals?date=${d}`);
+  const go = (d: string) => router.push(`${basePath}?date=${d}`);
   const today = format(new Date(), "yyyy-MM-dd");
   const current = new Date(`${date}T12:00:00`);
 
