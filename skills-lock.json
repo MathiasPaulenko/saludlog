@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "skills": {
+    "code-review": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/code-review/SKILL.md",
+      "computedHash": "1846141c77eaada59e449d831720ac1fd3f99e5cb22c30ed42ea5e4d14bd3cda"
+    },
+    "diagnosing-bugs": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
+      "computedHash": "aec3686657177071076dc1586c22cdf95137c230bc74cbb5d069903d73804817"
+    },
+    "fitness-nutrition": {
+      "source": "nousresearch/hermes-agent",
+      "sourceType": "github",
+      "skillPath": "optional-skills/health/fitness-nutrition/SKILL.md",
+      "computedHash": "ee7f915b5f73b71bb333d3ada588b1bf0ff7454ebfcb14269985c70295b93f01"
+    },
+    "fitness-program": {
+      "source": "revfactory/harness-100",
+      "sourceType": "github",
+      "skillPath": "en/74-fitness-program/.claude/skills/fitness-program/SKILL.md",
+      "computedHash": "6141e4d41dfd104f0168026961bacd938afceb52d48bfa650c8b455c2ff9d50b"
+    },
+    "health-coach": {
+      "source": "h1an1/health-coach",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "7c66670605c6629add18e02d573094b15bafd5c49a2f7f313295d07a3b3348fe"
+    },
+    "nutritional-specialist": {
+      "source": "ailabs-393/ai-labs-claude-skills",
+      "sourceType": "github",
+      "skillPath": "packages/skills/nutritional-specialist/SKILL.md",
+      "computedHash": "2ea2248474b48a1f1173972ceb0767ac236d3f6464e2474e8a17b7695b619dad"
+    },
+    "recipe_finder": {
+      "source": "coleam00/custom-agent-with-skills",
+      "sourceType": "github",
+      "skillPath": "skills/recipe_finder/SKILL.md",
+      "computedHash": "4eaff26b1cf0f89f77627de4320114204dd7cdde1aa8aebedd34fde6af8e4da2"
+    },
+    "supplement-drug-interactions": {
+      "source": "open-medica/open-medical-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supplement-drug-interactions/SKILL.md",
+      "computedHash": "659a347c05755c2d7e914788d19b438056ca8ffcb48df7db67b09750d457ac4b"
+    },
+    "tdd": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/tdd/SKILL.md",
+      "computedHash": "535d1a6f3bd5bded8971e7e4ea76538907cbff6b6d32c39cf97b669869dcd383"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "6b526d013e28073246a36f99b529bc43745d30832ecfa8217b359c34f260ca6b"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "d8e7d3afe37dcc8a97b99ffb5afdb4d0919ae0092ea8b68f44eb201f035e33ac"
+    },
+    "workout-program-designer": {
+      "source": "onewave-ai/claude-skills",
+      "sourceType": "github",
+      "skillPath": "workout-program-designer/SKILL.md",
+      "computedHash": "31d0b2de6985dcc62bdb2e3bb8582c7328618fe021654f469a97404fa911ee59"
+    }
+  }
+}
