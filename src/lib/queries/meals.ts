@@ -1,4 +1,4 @@
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, lte } from "drizzle-orm";
 import { connection } from "next/server";
 import { db } from "@/db";
 import {
@@ -9,7 +9,7 @@ import {
   type Meal,
   type MealItem,
 } from "@/db/schema";
-import { computeMealMacros, type Macros } from "@/lib/macros";
+import { computeItemMacros, computeMealMacros, type Macros } from "@/lib/macros";
 
 export interface MealWithItems extends Meal {
   items: { item: MealItem; food: Food }[];
@@ -48,4 +48,29 @@ export async function getDayTotals(date: string): Promise<Macros> {
     m.items.map((i) => ({ food: i.food, amount: i.item.amount })),
   );
   return computeMealMacros(items);
+}
+
+export async function getDayTotalsInRange(
+  startDate: string,
+  endDate: string,
+): Promise<(Macros & { date: string })[]> {
+  await connection();
+  const rows = await db
+    .select({ item: mealItems, food: foods, date: meals.date })
+    .from(mealItems)
+    .innerJoin(meals, eq(mealItems.mealId, meals.id))
+    .innerJoin(foods, eq(mealItems.foodId, foods.id))
+    .where(and(gte(meals.date, startDate), lte(meals.date, endDate)));
+
+  const byDate = new Map<string, Macros>();
+  for (const { item, food, date } of rows) {
+    const acc = byDate.get(date) ?? { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+    const m = computeItemMacros(food, item.amount);
+    acc.kcal += m.kcal;
+    acc.protein += m.protein;
+    acc.carbs += m.carbs;
+    acc.fat += m.fat;
+    byDate.set(date, acc);
+  }
+  return [...byDate.entries()].map(([date, totals]) => ({ date, ...totals }));
 }

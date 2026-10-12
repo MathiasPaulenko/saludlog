@@ -41,9 +41,12 @@ async function HabitsDay({
     return h.unit === "check" ? v >= 1 : h.targetDaily != null ? v >= h.targetDaily : v > 0;
   }).length;
 
-  const dateLabel = format(new Date(`${date}T12:00:00`), "EEEE d 'de' MMMM", {
-    locale: es,
-  });
+  const rawLabel = format(
+    new Date(`${date}T12:00:00`),
+    "EEEE d 'de' MMMM",
+    { locale: es },
+  );
+  const dateLabel = rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1);
 
   return (
     <>
@@ -54,7 +57,7 @@ async function HabitsDay({
         </span>
       </div>
 
-      <p className="text-sm capitalize text-muted-foreground">{dateLabel}</p>
+      <p className="text-sm text-muted-foreground">{dateLabel}</p>
 
       {activeHabits.length === 0 ? (
         <p className="text-muted-foreground">
