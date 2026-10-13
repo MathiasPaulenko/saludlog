@@ -93,9 +93,9 @@ function render(size) {
         distToSegment(x, y, cx1, cy1, cx2, cy2),
       );
       if (d <= stroke / 2) {
-        px[i] = 0xa3;
-        px[i + 1] = 0xe6;
-        px[i + 2] = 0x35;
+        px[i] = 0xf0;
+        px[i + 1] = 0x55;
+        px[i + 2] = 0x33;
       }
     }
   }
