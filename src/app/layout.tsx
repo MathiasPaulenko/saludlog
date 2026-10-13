@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppNav } from "@/components/app-nav";
 import { SwRegister } from "@/components/sw-register";
+import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,13 +25,21 @@ export const viewport: Viewport = {
   themeColor: "#0c110c",
 };
 
+const themeScript = `try {
+  var t = localStorage.getItem('theme') || 'dark';
+  var el = document.documentElement;
+  el.classList.toggle('light', t === 'light');
+  el.classList.toggle('dark', t !== 'light');
+} catch (e) {}`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <div className="flex min-h-screen">
           <aside className="flex w-56 shrink-0 flex-col gap-4 border-r border-border bg-sidebar py-5">
             <span className="flex items-center gap-2 px-6 text-lg font-semibold tracking-tight">
@@ -40,6 +49,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               saludlog
             </span>
             <AppNav />
+            <div className="mt-auto px-3">
+              <ThemeToggle />
+            </div>
           </aside>
           <main className="flex-1 px-8 py-6">{children}</main>
         </div>
