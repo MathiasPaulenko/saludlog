@@ -8,6 +8,7 @@ import { ConfirmSubmit } from "@/components/confirm-submit";
 import { WeekNav } from "@/components/workouts/week-nav";
 import { WorkoutFormDialog } from "@/components/workouts/workout-form-dialog";
 import { RoutinesSection } from "@/components/workouts/routines-section";
+import { TrainingPlanSection } from "@/components/workouts/training-plan-section";
 import {
   Card,
   CardAction,
@@ -18,6 +19,7 @@ import {
 import { WORKOUT_TYPE_LABELS } from "@/lib/labels";
 import { listExercises, type ExerciseOption } from "@/lib/queries/exercises";
 import { listRoutines } from "@/lib/queries/routines";
+import { getTrainingPlan } from "@/lib/queries/training-plan";
 import {
   getWorkoutsInRange,
   type WorkoutWithSets,
@@ -50,9 +52,10 @@ async function WorkoutsWeek({
   const weekStart = format(startOfWeek(current, { weekStartsOn: 1 }), "yyyy-MM-dd");
   const weekEnd = format(endOfWeek(current, { weekStartsOn: 1 }), "yyyy-MM-dd");
   const weekWorkouts = await getWorkoutsInRange(weekStart, weekEnd);
-  const [exercises, routines] = await Promise.all([
+  const [exercises, routines, trainingPlan] = await Promise.all([
     listExercises(),
     listRoutines(),
+    getTrainingPlan(),
   ]);
 
   const totalMin = weekWorkouts.reduce(
@@ -95,6 +98,12 @@ async function WorkoutsWeek({
       )}
 
       <RoutinesSection routines={routines} exercises={exercises} date={date} />
+
+      <TrainingPlanSection
+        plan={trainingPlan}
+        routines={routines}
+        weekStart={weekStart}
+      />
     </>
   );
 }

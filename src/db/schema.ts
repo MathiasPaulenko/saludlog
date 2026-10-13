@@ -118,6 +118,22 @@ export const routineItems = sqliteTable("routine_items", {
   weightKg: real("weight_kg"),
 });
 
+export const trainingPlanItems = sqliteTable("training_plan_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  dayOfWeek: integer("day_of_week").notNull(), // 0 = lunes … 6 = domingo
+  title: text("title").notNull(),
+  workoutType: text("workout_type", {
+    enum: ["gym", "cardio", "sport", "other"],
+  })
+    .notNull()
+    .default("gym"),
+  routineId: integer("routine_id").references(() => routines.id, {
+    onDelete: "set null",
+  }),
+  durationMin: integer("duration_min"),
+  position: integer("position").notNull().default(0),
+});
+
 export const bodyMetrics = sqliteTable("body_metrics", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   date: text("date").notNull().unique(),
@@ -170,3 +186,4 @@ export type Goal = typeof goals.$inferSelect;
 export type Exercise = typeof exercises.$inferSelect;
 export type Routine = typeof routines.$inferSelect;
 export type RoutineItem = typeof routineItems.$inferSelect;
+export type TrainingPlanItem = typeof trainingPlanItems.$inferSelect;
