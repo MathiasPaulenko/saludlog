@@ -116,7 +116,7 @@ async function WorkoutsWeek({
         />
       </div>
 
-      <div className="grid max-w-2xl grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <Stat label={s.sessions} value={String(weekWorkouts.length)} />
         <Stat label={s.totalDuration} value={`${totalMin} ${s.min}`} />
         <Stat
@@ -128,7 +128,7 @@ async function WorkoutsWeek({
       {weekWorkouts.length === 0 ? (
         <p className="text-muted-foreground">{s.noWorkouts}</p>
       ) : (
-        <div className="flex max-w-3xl flex-col gap-4">
+        <div className="grid items-start gap-4 xl:grid-cols-2">
           {weekWorkouts.map((w) => (
             <WorkoutCard
               key={w.id}

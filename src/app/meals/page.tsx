@@ -135,7 +135,7 @@ async function MealsDay({
 
       <p className="text-sm capitalize text-muted-foreground">{dateLabel}</p>
 
-      <div className="grid max-w-2xl grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label={s.calories} value={`${tm.kcal} kcal`} />
         <Stat label={s.protein} value={`${tm.protein} g`} />
         <Stat label={s.carbs} value={`${tm.carbs} g`} />
@@ -147,7 +147,7 @@ async function MealsDay({
           {s.noMeals}
         </p>
       ) : (
-        <div className="flex max-w-3xl flex-col gap-4">
+        <div className="grid items-start gap-4 xl:grid-cols-2">
           {MEAL_TYPES.map((type) =>
             dayMeals
               .filter((m) => m.type === type)

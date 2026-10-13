@@ -79,7 +79,7 @@ async function HabitsDay({
       {activeHabits.length === 0 ? (
         <p className="text-muted-foreground">{s.noHabits}</p>
       ) : (
-        <div className="grid max-w-3xl gap-2 sm:grid-cols-2">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {activeHabits.map((habit) => (
             <HabitRow
               key={habit.id}

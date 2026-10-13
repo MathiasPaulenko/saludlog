@@ -54,7 +54,7 @@ export function MetricsClient({ metrics }: { metrics: BodyMetric[] }) {
   }
 
   return (
-    <div className="max-w-3xl rounded-lg border border-border">
+    <div className="rounded-lg border border-border">
       <Table>
         <TableHeader>
           <TableRow>

@@ -129,7 +129,7 @@ async function InsightsSection() {
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight">Insights</h1>
-      <div className="grid max-w-4xl gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {insights.map((i, idx) => (
           <Card key={TITLES[idx].en}>
             <CardHeader>

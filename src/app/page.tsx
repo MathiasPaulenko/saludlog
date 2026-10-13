@@ -203,7 +203,7 @@ async function DayCards({
         )}
       </div>
 
-      <div className="grid max-w-5xl gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader>
             <div>
@@ -406,7 +406,7 @@ async function TrendsSection({
         <h2 className="text-xl font-semibold tracking-tight">{s.trends}</h2>
         <RangeNav range={range} />
       </div>
-      <div className="grid max-w-5xl gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         <WeightChart data={weightSeries(metrics, locale)} />
         <MacrosChart
           data={macroData}

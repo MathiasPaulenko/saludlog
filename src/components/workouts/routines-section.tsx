@@ -67,7 +67,7 @@ export function RoutinesSection({
       {routines.length === 0 ? (
         <p className="text-sm text-muted-foreground">{s.empty}</p>
       ) : (
-        <div className="grid max-w-3xl gap-3 sm:grid-cols-2">
+        <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {routines.map((r) => (
             <Card key={r.id}>
               <CardHeader>
