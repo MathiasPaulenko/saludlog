@@ -2,6 +2,7 @@
 
 import {
   Apple,
+  CalendarDays,
   CalendarRange,
   Dumbbell,
   House,
@@ -18,6 +19,7 @@ import { usePathname } from "next/navigation";
 const SECTIONS = [
   { href: "/", label: "Hoy", icon: House },
   { href: "/meals", label: "Comidas", icon: UtensilsCrossed },
+  { href: "/plan", label: "Dieta", icon: CalendarDays },
   { href: "/workouts", label: "Entrenos", icon: Dumbbell },
   { href: "/habits", label: "Hábitos", icon: ListChecks },
   { href: "/metrics", label: "Peso", icon: Scale },

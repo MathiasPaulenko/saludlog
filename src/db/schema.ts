@@ -51,6 +51,18 @@ export const mealItems = sqliteTable("meal_items", {
   amount: real("amount").notNull(),
 });
 
+export const mealPlanItems = sqliteTable("meal_plan_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  dayOfWeek: integer("day_of_week").notNull(), // 0 = lunes … 6 = domingo
+  mealType: text("meal_type", {
+    enum: ["breakfast", "lunch", "dinner", "snack"],
+  }).notNull(),
+  foodId: integer("food_id")
+    .notNull()
+    .references(() => foods.id),
+  amount: real("amount").notNull(),
+});
+
 export const workouts = sqliteTable("workouts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   date: text("date").notNull(),
@@ -148,6 +160,7 @@ export type Food = typeof foods.$inferSelect;
 export type NewFood = typeof foods.$inferInsert;
 export type Meal = typeof meals.$inferSelect;
 export type MealItem = typeof mealItems.$inferSelect;
+export type MealPlanItem = typeof mealPlanItems.$inferSelect;
 export type Workout = typeof workouts.$inferSelect;
 export type WorkoutSet = typeof workoutSets.$inferSelect;
 export type BodyMetric = typeof bodyMetrics.$inferSelect;
