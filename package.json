@@ -11,7 +11,8 @@
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts",
     "db:seed:demo": "tsx src/db/seed-demo.ts",
-    "db:seed:exercises": "tsx src/db/seed-exercises.ts"
+    "db:seed:exercises": "tsx src/db/seed-exercises.ts",
+    "db:demo": "tsx src/db/build-demo-db.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

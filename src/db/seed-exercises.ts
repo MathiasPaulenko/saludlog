@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { join } from "path";
+import { pathToFileURL } from "node:url";
 import * as schema from "./schema";
 
 /**
@@ -24,11 +25,14 @@ interface RemoteExercise {
   instructions: string[];
 }
 
-const db = drizzle(new Database(join(process.cwd(), "data", "saludlog.db")), {
-  schema,
-});
+const db = drizzle(
+  new Database(
+    process.env.DB_FILE ?? join(process.cwd(), "data", "saludlog.db"),
+  ),
+  { schema },
+);
 
-async function main() {
+export async function seedExercises() {
   const res = await fetch(URL);
   if (!res.ok) throw new Error(`No se pudo descargar el catálogo (${res.status})`);
   const data = (await res.json()) as RemoteExercise[];
@@ -62,4 +66,10 @@ async function main() {
   console.log(`seed:exercises → ${data.length} ejercicios`);
 }
 
-main();
+const isMain = import.meta.url === pathToFileURL(process.argv[1] ?? "").href;
+if (isMain) {
+  seedExercises().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}

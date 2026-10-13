@@ -13,7 +13,16 @@ next-env.d.ts
 # data — saludlog.db y cualquier dato personal, NUNCA subir (repo público)
 data/
 *.db
+*.db-shm
+*.db-wal
 *.sqlite*
+!demo/*.db
+
+# datos personales que generan las skills de salud
+health/
+
+# capturas de pruebas con browser
+.playwright-mcp/
 
 # env
 .env*

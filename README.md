@@ -20,6 +20,8 @@ npm run db:generate   # genera migración desde src/db/schema.ts
 npm run db:migrate    # aplica migraciones pendientes
 npm run db:seed       # seedea hábitos y alimentos default (idempotente)
 npm run db:seed:demo  # ~35 días de datos sintéticos para probar insights y gráficos
+npm run db:seed:exercises  # descarga el catálogo de ejercicios (free-exercise-db)
+npm run db:demo     # regenera demo/saludlog-demo.db con datos de muestra
 ```
 
 ## Features

@@ -11,7 +11,7 @@ import * as schema from "./schema";
  */
 
 const DAYS = 35;
-const dbFile = join(process.cwd(), "data", "saludlog.db");
+const dbFile = process.env.DB_FILE ?? join(process.cwd(), "data", "saludlog.db");
 const db = drizzle(new Database(dbFile), { schema });
 const { meals, mealItems, workouts, workoutSets, bodyMetrics, habits, habitLogs, goals, foods } =
   schema;
