@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "assessment": {
+      "source": "borisghidaglia/science-based-lifter",
+      "sourceType": "github",
+      "skillPath": "skills/assessment/SKILL.md",
+      "computedHash": "e92b0f8d1af610ae4e503e78fc130bbfcf1e37c929248d2ce8dce0b3560ba6a0"
+    },
     "code-review": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -12,6 +18,12 @@
       "sourceType": "github",
       "skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
       "computedHash": "aec3686657177071076dc1586c22cdf95137c230bc74cbb5d069903d73804817"
+    },
+    "drizzle-orm-patterns": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/drizzle-orm-patterns/SKILL.md",
+      "computedHash": "6c84a25a50ebc3860cd348089e3b163c4e0fc08d9c3932976b81917d5163c6a5"
     },
     "fitness-nutrition": {
       "source": "nousresearch/hermes-agent",
@@ -25,6 +37,12 @@
       "skillPath": "en/74-fitness-program/.claude/skills/fitness-program/SKILL.md",
       "computedHash": "6141e4d41dfd104f0168026961bacd938afceb52d48bfa650c8b455c2ff9d50b"
     },
+    "grocery-shopping": {
+      "source": "natea/ExoMind",
+      "sourceType": "github",
+      "skillPath": "skills/grocery-shopping/SKILL.md",
+      "computedHash": "ce66abd1ad5be09fa1a15f251fd3bd9ff92cf7a910e75a0c85fa403f6c1d1148"
+    },
     "health-coach": {
       "source": "h1an1/health-coach",
       "sourceType": "github",
@@ -37,11 +55,53 @@
       "skillPath": "packages/skills/nutritional-specialist/SKILL.md",
       "computedHash": "2ea2248474b48a1f1173972ceb0767ac236d3f6464e2474e8a17b7695b619dad"
     },
+    "program-creation": {
+      "source": "borisghidaglia/science-based-lifter",
+      "sourceType": "github",
+      "skillPath": "skills/program-creation/SKILL.md",
+      "computedHash": "7aa487fe9c9f3c0d598f57b131fa6e668e895c4a381b9e77da62adb84235900a"
+    },
+    "pwa-development": {
+      "source": "alinaqi/maggy",
+      "sourceType": "github",
+      "skillPath": "skills/pwa-development/SKILL.md",
+      "computedHash": "2219041ce92f6361ba77eb06c9a927dc7a1ba48f40ff5132321a29c4154ebc7a"
+    },
+    "recipe-finding": {
+      "source": "natea/ExoMind",
+      "sourceType": "github",
+      "skillPath": "skills/recipe-finding/SKILL.md",
+      "computedHash": "60ea880019e5050ba1e310cb4614cbf2d86df1c604e00c4686cef4becfd013d8"
+    },
     "recipe_finder": {
       "source": "coleam00/custom-agent-with-skills",
       "sourceType": "github",
       "skillPath": "skills/recipe_finder/SKILL.md",
       "computedHash": "4eaff26b1cf0f89f77627de4320114204dd7cdde1aa8aebedd34fde6af8e4da2"
+    },
+    "rp-diet": {
+      "source": "borisghidaglia/science-based-lifter",
+      "sourceType": "github",
+      "skillPath": "skills/rp-diet/SKILL.md",
+      "computedHash": "3f48bfddbff4b2c9d4c11f3413c930042bb591469d123a7a21066c14e1fca833"
+    },
+    "rp-training": {
+      "source": "borisghidaglia/science-based-lifter",
+      "sourceType": "github",
+      "skillPath": "skills/rp-training/SKILL.md",
+      "computedHash": "d199917ce746012847634574a14efd405afe39db356dea1e55d5c0a925499550"
+    },
+    "sbs-training": {
+      "source": "borisghidaglia/science-based-lifter",
+      "sourceType": "github",
+      "skillPath": "skills/sbs-training/SKILL.md",
+      "computedHash": "7e7056f5dc10cdcc83470abe2731e09daa2af64bc791236c2e9078aeb379b7b5"
+    },
+    "schoenfeld-hypertrophy": {
+      "source": "borisghidaglia/science-based-lifter",
+      "sourceType": "github",
+      "skillPath": "skills/schoenfeld-hypertrophy/SKILL.md",
+      "computedHash": "66144bb46d439b62255645e1e33a1256200d417cbd002eeccb7bdcde8ab68f46"
     },
     "supplement-drug-interactions": {
       "source": "open-medica/open-medical-skills",
@@ -66,6 +126,12 @@
       "sourceType": "github",
       "skillPath": "skills/web-design-guidelines/SKILL.md",
       "computedHash": "d8e7d3afe37dcc8a97b99ffb5afdb4d0919ae0092ea8b68f44eb201f035e33ac"
+    },
+    "wellness-expert": {
+      "source": "felixgeelhaar/skills",
+      "sourceType": "github",
+      "skillPath": "wellness-expert/SKILL.md",
+      "computedHash": "3186c792e232a5428abac6c55bd8d49cea710e207315fffd45b0ab1668d03921"
     },
     "workout-program-designer": {
       "source": "onewave-ai/claude-skills",
