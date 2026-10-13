@@ -66,6 +66,41 @@ export const workoutSets = sqliteTable("workout_sets", {
     .notNull()
     .references(() => workouts.id, { onDelete: "cascade" }),
   exercise: text("exercise").notNull(),
+  exerciseId: integer("exercise_id").references(() => exercises.id),
+  sets: integer("sets").notNull(),
+  reps: integer("reps").notNull(),
+  weightKg: real("weight_kg"),
+});
+
+export const exercises = sqliteTable("exercises", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  sourceId: text("source_id").notNull().unique(),
+  name: text("name").notNull().unique(),
+  category: text("category"),
+  level: text("level"),
+  equipment: text("equipment"),
+  primaryMuscles: text("primary_muscles", { mode: "json" }).$type<string[]>(),
+  secondaryMuscles: text("secondary_muscles", { mode: "json" }).$type<
+    string[]
+  >(),
+  instructions: text("instructions", { mode: "json" }).$type<string[]>(),
+});
+
+export const routines = sqliteTable("routines", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  notes: text("notes"),
+  createdAt: createdAt(),
+});
+
+export const routineItems = sqliteTable("routine_items", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  routineId: integer("routine_id")
+    .notNull()
+    .references(() => routines.id, { onDelete: "cascade" }),
+  position: integer("position").notNull(),
+  exercise: text("exercise").notNull(),
+  exerciseId: integer("exercise_id").references(() => exercises.id),
   sets: integer("sets").notNull(),
   reps: integer("reps").notNull(),
   weightKg: real("weight_kg"),
@@ -119,3 +154,6 @@ export type BodyMetric = typeof bodyMetrics.$inferSelect;
 export type Habit = typeof habits.$inferSelect;
 export type HabitLog = typeof habitLogs.$inferSelect;
 export type Goal = typeof goals.$inferSelect;
+export type Exercise = typeof exercises.$inferSelect;
+export type Routine = typeof routines.$inferSelect;
+export type RoutineItem = typeof routineItems.$inferSelect;

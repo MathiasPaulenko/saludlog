@@ -7,6 +7,7 @@ import { deleteWorkout } from "@/actions/workouts";
 import { ConfirmSubmit } from "@/components/confirm-submit";
 import { WeekNav } from "@/components/workouts/week-nav";
 import { WorkoutFormDialog } from "@/components/workouts/workout-form-dialog";
+import { RoutinesSection } from "@/components/workouts/routines-section";
 import {
   Card,
   CardAction,
@@ -15,6 +16,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { WORKOUT_TYPE_LABELS } from "@/lib/labels";
+import { listExercises, type ExerciseOption } from "@/lib/queries/exercises";
+import { listRoutines } from "@/lib/queries/routines";
 import {
   getWorkoutsInRange,
   type WorkoutWithSets,
@@ -47,6 +50,10 @@ async function WorkoutsWeek({
   const weekStart = format(startOfWeek(current, { weekStartsOn: 1 }), "yyyy-MM-dd");
   const weekEnd = format(endOfWeek(current, { weekStartsOn: 1 }), "yyyy-MM-dd");
   const weekWorkouts = await getWorkoutsInRange(weekStart, weekEnd);
+  const [exercises, routines] = await Promise.all([
+    listExercises(),
+    listRoutines(),
+  ]);
 
   const totalMin = weekWorkouts.reduce(
     (sum, w) => sum + (w.durationMin ?? 0),
@@ -59,6 +66,7 @@ async function WorkoutsWeek({
         <WeekNav date={date} />
         <WorkoutFormDialog
           defaultDate={date}
+          exercises={exercises}
           label="Registrar entreno"
           icon={<Plus />}
           buttonClassName="ml-auto"
@@ -81,10 +89,12 @@ async function WorkoutsWeek({
       ) : (
         <div className="flex max-w-3xl flex-col gap-4">
           {weekWorkouts.map((w) => (
-            <WorkoutCard key={w.id} workout={w} />
+            <WorkoutCard key={w.id} workout={w} exercises={exercises} />
           ))}
         </div>
       )}
+
+      <RoutinesSection routines={routines} exercises={exercises} date={date} />
     </>
   );
 }
@@ -98,7 +108,13 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function WorkoutCard({ workout }: { workout: WorkoutWithSets }) {
+function WorkoutCard({
+  workout,
+  exercises,
+}: {
+  workout: WorkoutWithSets;
+  exercises: ExerciseOption[];
+}) {
   const dayLabel = format(parseISO(workout.date), "EEEE d", { locale: es });
 
   return (
@@ -114,6 +130,7 @@ function WorkoutCard({ workout }: { workout: WorkoutWithSets }) {
         <CardAction className="flex items-center gap-1">
           <WorkoutFormDialog
             defaultDate={workout.date}
+            exercises={exercises}
             workout={workout}
             label="Editar"
             variant="ghost"

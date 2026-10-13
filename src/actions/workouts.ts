@@ -16,6 +16,7 @@ const workoutSchema = z.object({
     .array(
       z.object({
         exercise: z.string().trim().min(1),
+        exerciseId: z.number().int().positive().optional(),
         sets: z.number().int().positive(),
         reps: z.number().int().positive(),
         weightKg: z.number().min(0).optional(),

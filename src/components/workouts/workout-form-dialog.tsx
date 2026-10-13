@@ -23,6 +23,7 @@ import {
   WORKOUT_TYPE_LABELS,
   type WorkoutType,
 } from "@/lib/labels";
+import type { ExerciseOption } from "@/lib/queries/exercises";
 import type { WorkoutWithSets } from "@/lib/queries/workouts";
 
 interface SetRow {
@@ -35,6 +36,7 @@ interface SetRow {
 
 interface WorkoutFormDialogProps {
   defaultDate: string;
+  exercises: ExerciseOption[];
   workout?: WorkoutWithSets;
   label: ReactNode;
   icon?: ReactNode;
@@ -45,6 +47,7 @@ interface WorkoutFormDialogProps {
 
 export function WorkoutFormDialog({
   defaultDate,
+  exercises,
   workout,
   label,
   icon,
@@ -76,6 +79,7 @@ export function WorkoutFormDialog({
             <WorkoutForm
               key={workout?.id ?? "new"}
               defaultDate={defaultDate}
+              exercises={exercises}
               workout={workout}
               onDone={() => setOpen(false)}
             />
@@ -86,13 +90,18 @@ export function WorkoutFormDialog({
   );
 }
 
+const exerciseIdByName = (exercises: ExerciseOption[]) =>
+  new Map(exercises.map((e) => [e.name.toLowerCase(), e.id]));
+
 function WorkoutForm({
   defaultDate,
+  exercises,
   workout,
   onDone,
-}: Pick<WorkoutFormDialogProps, "defaultDate" | "workout"> & {
+}: Pick<WorkoutFormDialogProps, "defaultDate" | "exercises" | "workout"> & {
   onDone: () => void;
 }) {
+  const idByName = exerciseIdByName(exercises);
   const [date, setDate] = useState(workout?.date ?? defaultDate);
   const [type, setType] = useState<WorkoutType>(workout?.type ?? "gym");
   const [durationMin, setDurationMin] = useState(
@@ -139,6 +148,7 @@ function WorkoutForm({
       .filter((r) => r.exercise.trim() && Number(r.sets) > 0 && Number(r.reps) > 0)
       .map((r) => ({
         exercise: r.exercise.trim(),
+        exerciseId: idByName.get(r.exercise.trim().toLowerCase()),
         sets: Number(r.sets),
         reps: Number(r.reps),
         weightKg: r.weightKg !== "" ? Number(r.weightKg) : undefined,
@@ -232,9 +242,10 @@ function WorkoutForm({
             className="grid grid-cols-[1fr_4.5rem_4.5rem_5rem_2rem] items-center gap-2"
           >
             <Input
+              list="exercise-catalog"
               value={row.exercise}
               onChange={(e) => updateSet(row.key, { exercise: e.target.value })}
-              placeholder="Ej: Press banca"
+              placeholder="Ej: Barbell Bench Press"
             />
             <Input
               type="number"
@@ -270,6 +281,15 @@ function WorkoutForm({
           <Plus />
           Agregar serie
         </Button>
+        <datalist id="exercise-catalog">
+          {exercises.map((e) => (
+            <option
+              key={e.id}
+              value={e.name}
+              label={e.primaryMuscles?.join(", ") || e.equipment || undefined}
+            />
+          ))}
+        </datalist>
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}

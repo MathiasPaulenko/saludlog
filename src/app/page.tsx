@@ -26,6 +26,7 @@ import {
 import { habitStats, weekBuckets, weightSeries } from "@/lib/chart-data";
 import { WORKOUT_TYPE_LABELS } from "@/lib/labels";
 import { roundMacros } from "@/lib/macros";
+import { listExercises } from "@/lib/queries/exercises";
 import { listFoods } from "@/lib/queries/foods";
 import { getGoals } from "@/lib/queries/goals";
 import {
@@ -73,16 +74,25 @@ async function DayCards({
   const today = format(new Date(), "yyyy-MM-dd");
   const isToday = date === today;
 
-  const [totals, foods, goals, dayWorkouts, activeHabits, logs, lastTwo] =
-    await Promise.all([
-      getDayTotals(date),
-      listFoods(),
-      getGoals(),
-      getWorkoutsForDate(date),
-      listHabits(true),
-      getHabitLogsForDate(date),
-      getLastTwoMetricsUpTo(date),
-    ]);
+  const [
+    totals,
+    foods,
+    goals,
+    dayWorkouts,
+    activeHabits,
+    logs,
+    lastTwo,
+    exercises,
+  ] = await Promise.all([
+    getDayTotals(date),
+    listFoods(),
+    getGoals(),
+    getWorkoutsForDate(date),
+    listHabits(true),
+    getHabitLogsForDate(date),
+    getLastTwoMetricsUpTo(date),
+    listExercises(),
+  ]);
 
   const t = roundMacros(totals);
   const valueByHabit = new Map(logs.map((l) => [l.habitId, l.value]));
@@ -175,6 +185,7 @@ async function DayCards({
             <CardAction>
               <WorkoutFormDialog
                 defaultDate={date}
+                exercises={exercises}
                 label="Registrar entreno"
                 icon={<Plus />}
                 size="sm"
