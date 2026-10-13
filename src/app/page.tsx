@@ -366,7 +366,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-border p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-lg font-semibold">{value}</p>
+      <p className="font-mono text-lg font-semibold tabular-nums">{value}</p>
     </div>
   );
 }
@@ -388,7 +388,7 @@ function GoalProgress({
       <div className="flex items-baseline justify-between text-sm">
         <span className="text-muted-foreground">{label}</span>
         <span>
-          <span className="font-semibold">
+          <span className="font-mono font-semibold tabular-nums">
             {Math.round(value * 10) / 10} {unit}
           </span>
           {goal != null && (

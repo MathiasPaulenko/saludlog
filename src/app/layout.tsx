@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppNav } from "@/components/app-nav";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#18181b",
+  themeColor: "#0c110c",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,7 +33,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full">
         <div className="flex min-h-screen">
           <aside className="flex w-56 shrink-0 flex-col gap-4 border-r border-border bg-sidebar py-5">
-            <span className="px-6 text-lg font-semibold tracking-tight">
+            <span className="flex items-center gap-2 px-6 text-lg font-semibold tracking-tight">
+              <span className="flex size-5 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <Check className="size-3.5" strokeWidth={3} />
+              </span>
               saludlog
             </span>
             <AppNav />

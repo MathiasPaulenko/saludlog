@@ -83,17 +83,19 @@ function render(size) {
       const inY = Math.max(0, corner - y, y - (size - corner));
       const inside = inX * inX + inY * inY <= corner * corner;
       if (!inside) continue;
-      px[i] = 0x18;
-      px[i + 1] = 0x18;
-      px[i + 2] = 0x1b;
+      px[i] = 0x0c;
+      px[i + 1] = 0x11;
+      px[i + 2] = 0x0c;
       px[i + 3] = 255;
-      // check blanco
+      // check lima
       const d = Math.min(
         distToSegment(x, y, bx1, by1, bx2, by2),
         distToSegment(x, y, cx1, cy1, cx2, cy2),
       );
       if (d <= stroke / 2) {
-        px[i] = px[i + 1] = px[i + 2] = 0xff;
+        px[i] = 0xa3;
+        px[i + 1] = 0xe6;
+        px[i + 2] = 0x35;
       }
     }
   }

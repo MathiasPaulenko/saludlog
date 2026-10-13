@@ -40,10 +40,10 @@ export function AppNav() {
             href={href}
             className={cn(
               "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-              active && "bg-accent font-medium text-foreground",
+              active && "bg-primary/10 font-medium text-foreground",
             )}
           >
-            <Icon className="size-4" />
+            <Icon className={cn("size-4", active && "text-primary")} />
             {label}
           </Link>
         );
