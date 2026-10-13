@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import type { HabitStat, WeekBucket, WeightPoint } from "@/lib/chart-data";
 import type { Macros } from "@/lib/macros";
+import { useT } from "@/lib/use-locale";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,6 +29,53 @@ import {
 
 const axisStyle = { fontSize: 11, fill: "var(--muted-foreground)" };
 const gridStroke = "var(--border)";
+
+const S = {
+  es: {
+    weight: "Peso",
+    weightDesc: "Con media móvil de 7 mediciones",
+    weightEmpty: "Loggeá tu peso para ver la tendencia.",
+    weightAvg: "Media 7d",
+    nutrition: "Nutrición diaria",
+    calories: "Calorías",
+    protein: "Proteína",
+    perDay: "por día",
+    mealsEmpty: "Sin comidas registradas en el período.",
+    workoutsTitle: "Entrenos por semana",
+    workoutsDesc: "Sesiones y minutos (últimas 8 semanas)",
+    workoutsEmpty: "Sin entrenos en las últimas semanas.",
+    sessions: "Sesiones",
+    minutes: "Minutos",
+    habitsTitle: "Hábitos",
+    habitsDesc: "% de días cumplidos en el período + racha actual",
+    habitsEmpty: "No hay hábitos activos.",
+    adherence: "Cumplimiento",
+    streak: "racha",
+    goal: "meta",
+  },
+  en: {
+    weight: "Weight",
+    weightDesc: "With 7-measurement moving average",
+    weightEmpty: "Log your weight to see the trend.",
+    weightAvg: "7d avg",
+    nutrition: "Daily nutrition",
+    calories: "Calories",
+    protein: "Protein",
+    perDay: "per day",
+    mealsEmpty: "No meals logged in this period.",
+    workoutsTitle: "Workouts per week",
+    workoutsDesc: "Sessions and minutes (last 8 weeks)",
+    workoutsEmpty: "No workouts in the last weeks.",
+    sessions: "Sessions",
+    minutes: "Minutes",
+    habitsTitle: "Habits",
+    habitsDesc: "% of days completed in period + current streak",
+    habitsEmpty: "No active habits.",
+    adherence: "Adherence",
+    streak: "streak",
+    goal: "goal",
+  },
+};
 
 function ChartTip({
   active,
@@ -56,15 +104,16 @@ function EmptyState({ children }: { children: string }) {
 }
 
 export function WeightChart({ data }: { data: WeightPoint[] }) {
+  const s = useT(S);
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Peso</CardTitle>
-        <CardDescription>Con media móvil de 7 mediciones</CardDescription>
+        <CardTitle className="text-base">{s.weight}</CardTitle>
+        <CardDescription>{s.weightDesc}</CardDescription>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <EmptyState>Loggeá tu peso para ver la tendencia.</EmptyState>
+          <EmptyState>{s.weightEmpty}</EmptyState>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={data} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
@@ -74,7 +123,7 @@ export function WeightChart({ data }: { data: WeightPoint[] }) {
               <Tooltip content={<ChartTip />} />
               <Line
                 dataKey="weight"
-                name="Peso"
+                name={s.weight}
                 type="monotone"
                 stroke="var(--primary)"
                 strokeWidth={2}
@@ -82,7 +131,7 @@ export function WeightChart({ data }: { data: WeightPoint[] }) {
               />
               <Line
                 dataKey="avg"
-                name="Media 7d"
+                name={s.weightAvg}
                 type="monotone"
                 stroke="var(--muted-foreground)"
                 strokeWidth={1.5}
@@ -106,6 +155,7 @@ export function MacrosChart({
   kcalGoal?: number;
   proteinGoal?: number;
 }) {
+  const s = useT(S);
   const [metric, setMetric] = useState<"kcal" | "protein">("kcal");
   const goal = metric === "kcal" ? kcalGoal : proteinGoal;
   const unit = metric === "kcal" ? "kcal" : "g";
@@ -113,9 +163,9 @@ export function MacrosChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Nutrición diaria</CardTitle>
+        <CardTitle className="text-base">{s.nutrition}</CardTitle>
         <CardDescription className="flex items-center gap-2">
-          {metric === "kcal" ? "Calorías" : "Proteína"} por día
+          {metric === "kcal" ? s.calories : s.protein} {s.perDay}
           <span className="ml-auto flex gap-1">
             <Button
               variant={metric === "kcal" ? "default" : "outline"}
@@ -129,14 +179,14 @@ export function MacrosChart({
               size="xs"
               onClick={() => setMetric("protein")}
             >
-              Proteína
+              {s.protein}
             </Button>
           </span>
         </CardDescription>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <EmptyState>Sin comidas registradas en el período.</EmptyState>
+          <EmptyState>{s.mealsEmpty}</EmptyState>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={data} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
@@ -150,7 +200,7 @@ export function MacrosChart({
                   stroke="var(--muted-foreground)"
                   strokeDasharray="4 4"
                   label={{
-                    value: `meta ${goal}`,
+                    value: `${s.goal} ${goal}`,
                     position: "insideTopRight",
                     fontSize: 10,
                     fill: "var(--muted-foreground)",
@@ -159,7 +209,7 @@ export function MacrosChart({
               )}
               <Bar
                 dataKey={metric}
-                name={metric === "kcal" ? "kcal" : `proteína (${unit})`}
+                name={metric === "kcal" ? "kcal" : `${s.protein.toLowerCase()} (${unit})`}
                 fill="var(--primary)"
                 radius={[3, 3, 0, 0]}
               />
@@ -172,16 +222,17 @@ export function MacrosChart({
 }
 
 export function WorkoutsChart({ data }: { data: WeekBucket[] }) {
+  const s = useT(S);
   const hasData = data.some((w) => w.sessions > 0);
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Entrenos por semana</CardTitle>
-        <CardDescription>Sesiones y minutos (últimas 8 semanas)</CardDescription>
+        <CardTitle className="text-base">{s.workoutsTitle}</CardTitle>
+        <CardDescription>{s.workoutsDesc}</CardDescription>
       </CardHeader>
       <CardContent>
         {!hasData ? (
-          <EmptyState>Sin entrenos en las últimas semanas.</EmptyState>
+          <EmptyState>{s.workoutsEmpty}</EmptyState>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
             <ComposedChart data={data} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
@@ -203,14 +254,14 @@ export function WorkoutsChart({ data }: { data: WeekBucket[] }) {
               <Bar
                 yAxisId="left"
                 dataKey="sessions"
-                name="Sesiones"
+                name={s.sessions}
                 fill="var(--primary)"
                 radius={[3, 3, 0, 0]}
               />
               <Line
                 yAxisId="right"
                 dataKey="minutes"
-                name="Minutos"
+                name={s.minutes}
                 type="monotone"
                 stroke="var(--muted-foreground)"
                 strokeWidth={1.5}
@@ -225,17 +276,16 @@ export function WorkoutsChart({ data }: { data: WeekBucket[] }) {
 }
 
 export function HabitsChart({ data }: { data: HabitStat[] }) {
+  const s = useT(S);
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Hábitos</CardTitle>
-        <CardDescription>
-          % de días cumplidos en el período + racha actual
-        </CardDescription>
+        <CardTitle className="text-base">{s.habitsTitle}</CardTitle>
+        <CardDescription>{s.habitsDesc}</CardDescription>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <EmptyState>No hay hábitos activos.</EmptyState>
+          <EmptyState>{s.habitsEmpty}</EmptyState>
         ) : (
           <div className="flex flex-col gap-4">
             <ResponsiveContainer width="100%" height={160}>
@@ -255,7 +305,7 @@ export function HabitsChart({ data }: { data: HabitStat[] }) {
                 <Tooltip content={<ChartTip />} />
                 <Bar
                   dataKey="pct"
-                  name="Cumplimiento"
+                  name={s.adherence}
                   fill="var(--primary)"
                   radius={[0, 3, 3, 0]}
                 />
@@ -268,7 +318,7 @@ export function HabitsChart({ data }: { data: HabitStat[] }) {
                   {h.streak > 0 && (
                     <span className="text-foreground">
                       {" "}
-                      · racha {h.streak}d
+                      · {s.streak} {h.streak}d
                     </span>
                   )}
                 </li>

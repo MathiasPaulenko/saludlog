@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { habitLogs, habits } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const idSchema = z.number().int().positive();
@@ -27,8 +28,9 @@ function revalidateHabits() {
 }
 
 export async function logHabitValue(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = logSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const { habitId, date, value } = parsed.data;
   db.insert(habitLogs)
@@ -44,8 +46,9 @@ export async function logHabitValue(input: unknown): Promise<ActionResult> {
 }
 
 export async function createHabit(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = habitSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const max = db
     .select({ sortOrder: habits.sortOrder })
@@ -66,8 +69,9 @@ export async function setHabitActive(
   habitId: number,
   active: boolean,
 ): Promise<ActionResult> {
+  const s = await actionStrings();
   if (!idSchema.safeParse(habitId).success) {
-    return { ok: false, error: "ID inválido" };
+    return { ok: false, error: s.invalidId };
   }
   db.update(habits).set({ active }).where(eq(habits.id, habitId)).run();
   revalidateHabits();
@@ -78,8 +82,9 @@ export async function moveHabit(
   habitId: number,
   direction: "up" | "down",
 ): Promise<ActionResult> {
+  const s = await actionStrings();
   if (!idSchema.safeParse(habitId).success) {
-    return { ok: false, error: "ID inválido" };
+    return { ok: false, error: s.invalidId };
   }
 
   const all = db.select().from(habits).orderBy(asc(habits.sortOrder)).all();

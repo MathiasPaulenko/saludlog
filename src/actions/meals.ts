@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
 import { foods, mealItems, meals } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const mealSchema = z.object({
@@ -31,8 +32,9 @@ function revalidateMeals() {
 }
 
 export async function logMeal(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = mealSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const foodIds = parsed.data.items.map((i) => i.foodId);
   const found = db
@@ -41,7 +43,7 @@ export async function logMeal(input: unknown): Promise<ActionResult> {
     .where(inArray(foods.id, foodIds))
     .all();
   if (found.length !== new Set(foodIds).size) {
-    return { ok: false, error: "Algún alimento no existe" };
+    return { ok: false, error: s.foodNotFound };
   }
 
   const { date, type, notes, items } = parsed.data;
@@ -65,11 +67,12 @@ export async function updateMeal(
   mealId: number,
   input: unknown,
 ): Promise<ActionResult> {
+  const s = await actionStrings();
   if (!idSchema.safeParse(mealId).success) {
-    return { ok: false, error: "ID inválido" };
+    return { ok: false, error: s.invalidId };
   }
   const parsed = mealSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const { date, type, notes, items } = parsed.data;
   db.transaction((tx) => {

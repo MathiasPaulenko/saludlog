@@ -1,5 +1,4 @@
 import { addDays, endOfWeek, format, parseISO, startOfWeek } from "date-fns";
-import { es } from "date-fns/locale";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { WeekNav } from "@/components/workouts/week-nav";
@@ -14,14 +13,39 @@ import { getDayTotalsInRange } from "@/lib/queries/meals";
 import { getMetricsInRange } from "@/lib/queries/metrics";
 import { getWorkoutsInRange } from "@/lib/queries/workouts";
 import type { Habit } from "@/db/schema";
+import { dateFnsLocale, getLocale, t } from "@/lib/i18n";
 
 const WEEK_OPTS = { weekStartsOn: 1 as const };
+
+const S = {
+  es: {
+    title: "Semana",
+    kcalAvg: "kcal promedio/día",
+    workouts: "Entrenos",
+    weightDelta: "Delta peso",
+    habitsDone: "Hábitos cumplidos",
+    metric: "Métrica",
+    thisWeek: "Esta semana",
+    previous: "Anterior",
+    min: "min",
+  },
+  en: {
+    title: "Week",
+    kcalAvg: "avg kcal/day",
+    workouts: "Workouts",
+    weightDelta: "Weight delta",
+    habitsDone: "Habits completed",
+    metric: "Metric",
+    thisWeek: "This week",
+    previous: "Previous",
+    min: "min",
+  },
+};
 
 export default function WeeklyPage({ searchParams }: PageProps<"/weekly">) {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Semana</h1>
-      <Suspense fallback={<p className="text-muted-foreground">Cargando…</p>}>
+      <Suspense fallback={<p className="text-muted-foreground">…</p>}>
         <WeeklyReport searchParams={searchParams} />
       </Suspense>
     </div>
@@ -51,7 +75,12 @@ async function WeeklyReport({
   searchParams: PageProps<"/weekly">["searchParams"];
 }) {
   await connection();
-  const { date: raw } = await searchParams;
+  const [{ date: raw }, locale] = await Promise.all([
+    searchParams,
+    getLocale(),
+  ]);
+  const s = t(S, locale);
+  const loc = dateFnsLocale(locale);
   const date =
     typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw)
       ? raw
@@ -119,21 +148,21 @@ async function WeeklyReport({
   const cur = summarize(ws, effectiveEnd);
   const prev = summarize(ps, pe);
 
-  const label = `${format(weekStart, "d MMM", { locale: es })} – ${format(weekEnd, "d MMM", { locale: es })}`;
+  const label = `${format(weekStart, "d MMM", { locale: loc })} – ${format(weekEnd, "d MMM", { locale: loc })}`;
 
   const rows: { label: string; cur: string; prev: string }[] = [
     {
-      label: "kcal promedio/día",
+      label: s.kcalAvg,
       cur: cur.kcalAvg != null ? `${cur.kcalAvg} (${cur.kcalDays}d)` : "—",
       prev: prev.kcalAvg != null ? `${prev.kcalAvg} (${prev.kcalDays}d)` : "—",
     },
     {
-      label: "Entrenos",
-      cur: `${cur.sessions} · ${cur.minutes} min`,
-      prev: `${prev.sessions} · ${prev.minutes} min`,
+      label: s.workouts,
+      cur: `${cur.sessions} · ${cur.minutes} ${s.min}`,
+      prev: `${prev.sessions} · ${prev.minutes} ${s.min}`,
     },
     {
-      label: "Delta peso",
+      label: s.weightDelta,
       cur:
         cur.weightDelta != null
           ? `${cur.weightDelta > 0 ? "+" : ""}${cur.weightDelta} kg`
@@ -144,7 +173,7 @@ async function WeeklyReport({
           : "—",
     },
     {
-      label: "Hábitos cumplidos",
+      label: s.habitsDone,
       cur: cur.habitPct != null ? `${cur.habitPct}%` : "—",
       prev: prev.habitPct != null ? `${prev.habitPct}%` : "—",
     },
@@ -152,6 +181,7 @@ async function WeeklyReport({
 
   return (
     <>
+      <h1 className="text-2xl font-semibold tracking-tight">{s.title}</h1>
       <WeekNav date={date} basePath="/weekly" />
       <Card className="max-w-2xl">
         <CardHeader>
@@ -161,9 +191,9 @@ async function WeeklyReport({
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-muted-foreground">
-                <th className="pb-2 font-medium">Métrica</th>
-                <th className="pb-2 text-right font-medium">Esta semana</th>
-                <th className="pb-2 text-right font-medium">Anterior</th>
+                <th className="pb-2 font-medium">{s.metric}</th>
+                <th className="pb-2 text-right font-medium">{s.thisWeek}</th>
+                <th className="pb-2 text-right font-medium">{s.previous}</th>
               </tr>
             </thead>
             <tbody>

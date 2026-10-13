@@ -13,6 +13,17 @@ interface OffProduct {
   nutriments?: OffNutriments;
 }
 
+const ERR = {
+  es: {
+    noResponse: "OpenFoodFacts no respondió",
+    noConnection: "Sin conexión con OpenFoodFacts",
+  },
+  en: {
+    noResponse: "OpenFoodFacts didn't respond",
+    noConnection: "No connection to OpenFoodFacts",
+  },
+};
+
 export interface OffCandidate {
   id: string;
   name: string;
@@ -26,6 +37,8 @@ export interface OffCandidate {
 export async function GET(request: Request) {
   const q = new URL(request.url).searchParams.get("q")?.trim();
   if (!q || q.length < 2) return Response.json({ results: [] });
+  const lang = new URL(request.url).searchParams.get("lang");
+  const err = lang === "en" ? ERR.en : ERR.es;
 
   try {
     const url =
@@ -39,7 +52,7 @@ export async function GET(request: Request) {
     });
     if (!res.ok) {
       return Response.json(
-        { error: "OpenFoodFacts no respondió" },
+        { error: err.noResponse },
         { status: 502 },
       );
     }
@@ -66,7 +79,7 @@ export async function GET(request: Request) {
     return Response.json({ results });
   } catch {
     return Response.json(
-      { error: "Sin conexión con OpenFoodFacts" },
+      { error: err.noConnection },
       { status: 502 },
     );
   }

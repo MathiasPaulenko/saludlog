@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { foods, mealItems } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const foodSchema = z.object({
@@ -22,8 +23,9 @@ const foodSchema = z.object({
 const idSchema = z.number().int().positive();
 
 export async function createFood(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = foodSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const existing = db
     .select({ id: foods.id })
@@ -31,7 +33,7 @@ export async function createFood(input: unknown): Promise<ActionResult> {
     .where(eq(foods.name, parsed.data.name))
     .all();
   if (existing.length > 0) {
-    return { ok: false, error: "Ya existe un alimento con ese nombre" };
+    return { ok: false, error: s.foodNameTaken };
   }
 
   db.insert(foods).values(parsed.data).run();
@@ -44,9 +46,10 @@ export async function updateFood(
   id: number,
   input: unknown,
 ): Promise<ActionResult> {
-  if (!idSchema.safeParse(id).success) return { ok: false, error: "ID inválido" };
+  const s = await actionStrings();
+  if (!idSchema.safeParse(id).success) return { ok: false, error: s.invalidId };
   const parsed = foodSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   db.update(foods).set(parsed.data).where(eq(foods.id, id)).run();
   revalidatePath("/foods");
@@ -56,7 +59,8 @@ export async function updateFood(
 }
 
 export async function deleteFood(id: number): Promise<ActionResult> {
-  if (!idSchema.safeParse(id).success) return { ok: false, error: "ID inválido" };
+  const s = await actionStrings();
+  if (!idSchema.safeParse(id).success) return { ok: false, error: s.invalidId };
 
   const usage = db
     .select({ value: count() })
@@ -64,10 +68,7 @@ export async function deleteFood(id: number): Promise<ActionResult> {
     .where(eq(mealItems.foodId, id))
     .all()[0]?.value ?? 0;
   if (usage > 0) {
-    return {
-      ok: false,
-      error: `No se puede eliminar: está en ${usage} comida${usage === 1 ? "" : "s"} registrada${usage === 1 ? "" : "s"}`,
-    };
+    return { ok: false, error: s.foodInUse(usage) };
   }
 
   db.delete(foods).where(eq(foods.id, id)).run();

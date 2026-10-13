@@ -15,26 +15,55 @@ import {
 import { cn } from "cn";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useT } from "@/lib/use-locale";
 
-const SECTIONS = [
-  { href: "/", label: "Hoy", icon: House },
-  { href: "/meals", label: "Comidas", icon: UtensilsCrossed },
-  { href: "/plan", label: "Dieta", icon: CalendarDays },
-  { href: "/workouts", label: "Entrenos", icon: Dumbbell },
-  { href: "/habits", label: "Hábitos", icon: ListChecks },
-  { href: "/metrics", label: "Peso", icon: Scale },
-  { href: "/weekly", label: "Semana", icon: CalendarRange },
-  { href: "/insights", label: "Insights", icon: Lightbulb },
-  { href: "/foods", label: "Alimentos", icon: Apple },
-  { href: "/settings", label: "Metas", icon: Target },
-];
+const S = {
+  es: {
+    today: "Hoy",
+    meals: "Comidas",
+    diet: "Dieta",
+    workouts: "Entrenos",
+    habits: "Hábitos",
+    weight: "Peso",
+    week: "Semana",
+    insights: "Insights",
+    foods: "Alimentos",
+    goals: "Metas",
+  },
+  en: {
+    today: "Today",
+    meals: "Meals",
+    diet: "Diet",
+    workouts: "Workouts",
+    habits: "Habits",
+    weight: "Weight",
+    week: "Week",
+    insights: "Insights",
+    foods: "Foods",
+    goals: "Goals",
+  },
+};
 
 export function AppNav() {
   const pathname = usePathname();
+  const s = useT(S);
+
+  const sections = [
+    { href: "/", label: s.today, icon: House },
+    { href: "/meals", label: s.meals, icon: UtensilsCrossed },
+    { href: "/plan", label: s.diet, icon: CalendarDays },
+    { href: "/workouts", label: s.workouts, icon: Dumbbell },
+    { href: "/habits", label: s.habits, icon: ListChecks },
+    { href: "/metrics", label: s.weight, icon: Scale },
+    { href: "/weekly", label: s.week, icon: CalendarRange },
+    { href: "/insights", label: s.insights, icon: Lightbulb },
+    { href: "/foods", label: s.foods, icon: Apple },
+    { href: "/settings", label: s.goals, icon: Target },
+  ];
 
   return (
     <nav className="flex flex-col gap-1 px-3">
-      {SECTIONS.map(({ href, label, icon: Icon }) => {
+      {sections.map(({ href, label, icon: Icon }) => {
         const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
         return (
           <Link

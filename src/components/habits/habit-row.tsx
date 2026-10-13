@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Habit } from "@/db/schema";
 import { HABIT_UNIT_SUFFIX } from "@/lib/labels";
+import { useT } from "@/lib/use-locale";
 import { cn } from "cn";
+
+const S = {
+  es: { done: "hecho", pendingLabel: "pendiente", goal: "Meta" },
+  en: { done: "done", pendingLabel: "pending", goal: "Goal" },
+};
 
 interface HabitRowProps {
   habit: Habit;
@@ -21,6 +27,7 @@ export function HabitRow({ habit, date, initialValue }: HabitRowProps) {
     initialValue > 0 ? String(initialValue) : "",
   );
   const [pending, startTransition] = useTransition();
+  const s = useT(S);
 
   const done =
     habit.unit === "check"
@@ -60,7 +67,7 @@ export function HabitRow({ habit, date, initialValue }: HabitRowProps) {
           size="icon-sm"
           onClick={() => commit(done ? 0 : 1)}
           disabled={pending}
-          aria-label={`${habit.name}: ${done ? "hecho" : "pendiente"}`}
+          aria-label={`${habit.name}: ${done ? s.done : s.pendingLabel}`}
         >
           <Check />
         </Button>
@@ -88,7 +95,7 @@ export function HabitRow({ habit, date, initialValue }: HabitRowProps) {
         <p className="truncate text-sm font-medium">{habit.name}</p>
         {habit.targetDaily != null && (
           <p className="text-xs text-muted-foreground">
-            Meta: {habit.targetDaily}
+            {s.goal}: {habit.targetDaily}
             {HABIT_UNIT_SUFFIX[habit.unit] &&
               ` ${HABIT_UNIT_SUFFIX[habit.unit]}`}
           </p>

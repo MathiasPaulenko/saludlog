@@ -1,6 +1,6 @@
 import { addDays, format, parseISO, startOfWeek } from "date-fns";
-import { es } from "date-fns/locale";
 import type { Habit, HabitLog } from "@/db/schema";
+import { dateFnsLocale, type Locale } from "@/lib/i18n";
 
 export interface WeightPoint {
   label: string;
@@ -10,12 +10,13 @@ export interface WeightPoint {
 
 export function weightSeries(
   metrics: { date: string; weightKg: number }[],
+  locale: Locale,
 ): WeightPoint[] {
   return metrics.map((m, i) => {
     const window = metrics.slice(Math.max(0, i - 6), i + 1);
     const avg = window.reduce((s, x) => s + x.weightKg, 0) / window.length;
     return {
-      label: format(parseISO(m.date), "d MMM", { locale: es }),
+      label: format(parseISO(m.date), "d MMM", { locale: dateFnsLocale(locale) }),
       weight: m.weightKg,
       avg: window.length > 1 ? Math.round(avg * 10) / 10 : null,
     };
@@ -31,6 +32,7 @@ export interface WeekBucket {
 export function weekBuckets(
   workouts: { date: string; durationMin: number | null }[],
   endDate: string,
+  locale: Locale,
   weeks = 8,
 ): WeekBucket[] {
   const end = startOfWeek(parseISO(endDate), { weekStartsOn: 1 });
@@ -43,7 +45,7 @@ export function weekBuckets(
       return d >= weekStart && d < weekEnd;
     });
     buckets.push({
-      label: format(weekStart, "d MMM", { locale: es }),
+      label: format(weekStart, "d MMM", { locale: dateFnsLocale(locale) }),
       sessions: inWeek.length,
       minutes: inWeek.reduce((s, x) => s + (x.durationMin ?? 0), 0),
     });

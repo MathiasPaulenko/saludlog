@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppNav } from "@/components/app-nav";
+import { LangToggle } from "@/components/lang-toggle";
 import { SwRegister } from "@/components/sw-register";
 import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "saludlog",
-  description: "Registro personal de salud: comidas, entrenos, hábitos y peso.",
+  description: "Personal health log: meals, workouts, habits and weight.",
 };
 
 export const viewport: Viewport = {
@@ -30,12 +31,15 @@ const themeScript = `try {
   var el = document.documentElement;
   el.classList.toggle('light', t === 'light');
   el.classList.toggle('dark', t !== 'light');
+  var lang = (document.cookie.match(/lang=(\\w+)/) || [])[1] || 'es';
+  el.lang = lang;
 } catch (e) {}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
+      suppressHydrationWarning
       className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
@@ -49,7 +53,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               saludlog
             </span>
             <AppNav />
-            <div className="mt-auto px-3">
+            <div className="mt-auto flex flex-col gap-1 px-3">
+              <LangToggle />
               <ThemeToggle />
             </div>
           </aside>

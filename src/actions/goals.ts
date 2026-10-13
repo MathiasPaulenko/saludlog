@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { goals } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const GOAL_KEYS = ["daily_kcal", "daily_protein", "weekly_workouts"] as const;
@@ -15,8 +16,9 @@ const goalsSchema = z.record(
 );
 
 export async function saveGoals(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = goalsSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   for (const key of GOAL_KEYS) {
     const value = parsed.data[key];

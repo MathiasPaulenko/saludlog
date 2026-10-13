@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { workouts, workoutSets } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const workoutSchema = z.object({
@@ -33,8 +34,9 @@ function revalidateWorkouts() {
 }
 
 export async function logWorkout(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = workoutSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const { date, type, durationMin, notes, sets } = parsed.data;
   db.transaction((tx) => {
@@ -59,11 +61,12 @@ export async function updateWorkout(
   workoutId: number,
   input: unknown,
 ): Promise<ActionResult> {
+  const s = await actionStrings();
   if (!idSchema.safeParse(workoutId).success) {
-    return { ok: false, error: "ID inválido" };
+    return { ok: false, error: s.invalidId };
   }
   const parsed = workoutSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const { date, type, durationMin, notes, sets } = parsed.data;
   db.transaction((tx) => {

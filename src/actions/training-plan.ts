@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { routines, trainingPlanItems } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const addSchema = z.object({
@@ -20,8 +21,9 @@ const idSchema = z.number().int().positive();
 export async function addTrainingPlanItem(
   input: unknown,
 ): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = addSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const data = parsed.data;
   if (data.routineId != null) {

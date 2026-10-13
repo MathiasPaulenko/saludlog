@@ -5,6 +5,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useT } from "@/lib/use-locale";
+
+const S = {
+  es: { prev: "Día anterior", next: "Día siguiente", today: "Hoy" },
+  en: { prev: "Previous day", next: "Next day", today: "Today" },
+};
 
 export function DateNav({
   date,
@@ -14,6 +20,7 @@ export function DateNav({
   basePath?: string;
 }) {
   const router = useRouter();
+  const s = useT(S);
   const go = (d: string) => router.push(`${basePath}?date=${d}`);
   const today = format(new Date(), "yyyy-MM-dd");
   const current = new Date(`${date}T12:00:00`);
@@ -24,7 +31,7 @@ export function DateNav({
         variant="outline"
         size="icon-sm"
         onClick={() => go(format(addDays(current, -1), "yyyy-MM-dd"))}
-        aria-label="Día anterior"
+        aria-label={s.prev}
       >
         <ChevronLeft />
       </Button>
@@ -38,13 +45,13 @@ export function DateNav({
         variant="outline"
         size="icon-sm"
         onClick={() => go(format(addDays(current, 1), "yyyy-MM-dd"))}
-        aria-label="Día siguiente"
+        aria-label={s.next}
       >
         <ChevronRight />
       </Button>
       {date !== today && (
         <Button variant="ghost" size="sm" onClick={() => go(today)}>
-          Hoy
+          {s.today}
         </Button>
       )}
     </div>

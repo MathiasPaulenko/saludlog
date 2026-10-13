@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { mealPlanItems } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const addSchema = z.object({
@@ -22,16 +23,18 @@ const updateSchema = z.object({
 const idSchema = z.number().int().positive();
 
 export async function addPlanItem(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = addSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
   db.insert(mealPlanItems).values(parsed.data).run();
   revalidatePath("/plan");
   return { ok: true };
 }
 
 export async function updatePlanItem(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = updateSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
   db.update(mealPlanItems)
     .set({ amount: parsed.data.amount })
     .where(eq(mealPlanItems.id, parsed.data.id))

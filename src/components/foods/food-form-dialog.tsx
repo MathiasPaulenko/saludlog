@@ -14,6 +14,62 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Food } from "@/db/schema";
+import { useT } from "@/lib/use-locale";
+
+const S = {
+  es: {
+    editFood: "Editar alimento",
+    newFood: "Nuevo alimento",
+    offImport: "Importar de OpenFoodFacts",
+    offSearch: "Buscar (ej: arroz)…",
+    searching: "Buscando…",
+    search: "Buscar",
+    offNoResponse: "OpenFoodFacts no respondió",
+    offNoConnection: "Sin conexión con OpenFoodFacts",
+    noResults: "Sin resultados.",
+    source: "Fuente",
+    name: "Nombre",
+    namePlaceholder: "Ej: Pechuga de pollo",
+    baseAmount: "Cantidad base",
+    unit: "Unidad",
+    grams: "gramos (g)",
+    milliliters: "mililitros (ml)",
+    unitLabel: "unidad (u)",
+    macrosNote: "Macros por la cantidad base indicada.",
+    kcal: "Calorías (kcal)",
+    protein: "Proteína (g)",
+    carbs: "Carbohidratos (g)",
+    fat: "Grasa (g)",
+    saving: "Guardando…",
+    save: "Guardar",
+  },
+  en: {
+    editFood: "Edit food",
+    newFood: "New food",
+    offImport: "Import from OpenFoodFacts",
+    offSearch: "Search (e.g.: rice)…",
+    searching: "Searching…",
+    search: "Search",
+    offNoResponse: "OpenFoodFacts didn't respond",
+    offNoConnection: "No connection to OpenFoodFacts",
+    noResults: "No results.",
+    source: "Source",
+    name: "Name",
+    namePlaceholder: "E.g.: Chicken breast",
+    baseAmount: "Base amount",
+    unit: "Unit",
+    grams: "grams (g)",
+    milliliters: "milliliters (ml)",
+    unitLabel: "unit (u)",
+    macrosNote: "Macros for the base amount indicated.",
+    kcal: "Calories (kcal)",
+    protein: "Protein (g)",
+    carbs: "Carbohydrates (g)",
+    fat: "Fat (g)",
+    saving: "Saving…",
+    save: "Save",
+  },
+};
 
 interface FoodFormDialogProps {
   open: boolean;
@@ -30,6 +86,7 @@ interface Prefill {
 }
 
 export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps) {
+  const s = useT(S);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -46,19 +103,21 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
     setOffLoading(true);
     setOffError(null);
     try {
-      const res = await fetch(`/api/foods/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(
+        `/api/foods/search?q=${encodeURIComponent(q)}&lang=${document.documentElement.lang || "es"}`,
+      );
       const data = (await res.json()) as {
         results?: OffCandidate[];
         error?: string;
       };
       if (!res.ok) {
-        setOffError(data.error ?? "OpenFoodFacts no respondió");
+        setOffError(data.error ?? s.offNoResponse);
         setOffResults([]);
       } else {
         setOffResults(data.results ?? []);
       }
     } catch {
-      setOffError("Sin conexión con OpenFoodFacts");
+      setOffError(s.offNoConnection);
       setOffResults([]);
     } finally {
       setOffLoading(false);
@@ -108,13 +167,13 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{food ? "Editar alimento" : "Nuevo alimento"}</DialogTitle>
+          <DialogTitle>{food ? s.editFood : s.newFood}</DialogTitle>
         </DialogHeader>
 
         {!food && (
           <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border p-3">
             <p className="text-xs font-medium text-muted-foreground">
-              Importar de OpenFoodFacts
+              {s.offImport}
             </p>
             <div className="flex gap-2">
               <Input
@@ -126,7 +185,7 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
                     searchOff();
                   }
                 }}
-                placeholder="Buscar (ej: arroz)…"
+                placeholder={s.offSearch}
               />
               <Button
                 type="button"
@@ -134,14 +193,14 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
                 onClick={searchOff}
                 disabled={offLoading}
               >
-                {offLoading ? "Buscando…" : "Buscar"}
+                {offLoading ? s.searching : s.search}
               </Button>
             </div>
             {offError && (
               <p className="text-xs text-destructive">{offError}</p>
             )}
             {offResults && offResults.length === 0 && !offError && (
-              <p className="text-xs text-muted-foreground">Sin resultados.</p>
+              <p className="text-xs text-muted-foreground">{s.noResults}</p>
             )}
             {offResults && offResults.length > 0 && (
               <ul className="max-h-40 overflow-auto">
@@ -169,7 +228,7 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
             )}
             {offSourceId && (
               <p className="text-xs text-muted-foreground">
-                Fuente: OpenFoodFacts ({offSourceId})
+                {s.source}: OpenFoodFacts ({offSourceId})
               </p>
             )}
           </div>
@@ -181,18 +240,18 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
           className="flex flex-col gap-4"
         >
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="food-name">Nombre</Label>
+            <Label htmlFor="food-name">{s.name}</Label>
             <Input
               id="food-name"
               name="name"
               required
               defaultValue={prefill?.name ?? food?.name}
-              placeholder="Ej: Pechuga de pollo"
+              placeholder={s.namePlaceholder}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="food-baseAmount">Cantidad base</Label>
+              <Label htmlFor="food-baseAmount">{s.baseAmount}</Label>
               <Input
                 id="food-baseAmount"
                 name="baseAmount"
@@ -204,25 +263,23 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="food-baseUnit">Unidad</Label>
+              <Label htmlFor="food-baseUnit">{s.unit}</Label>
               <select
                 id="food-baseUnit"
                 name="baseUnit"
                 defaultValue={food?.baseUnit ?? "g"}
                 className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
               >
-                <option value="g">gramos (g)</option>
-                <option value="ml">mililitros (ml)</option>
-                <option value="unit">unidad (u)</option>
+                <option value="g">{s.grams}</option>
+                <option value="ml">{s.milliliters}</option>
+                <option value="unit">{s.unitLabel}</option>
               </select>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Macros por la cantidad base indicada.
-          </p>
+          <p className="text-xs text-muted-foreground">{s.macrosNote}</p>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="food-kcal">Calorías (kcal)</Label>
+              <Label htmlFor="food-kcal">{s.kcal}</Label>
               <Input
                 id="food-kcal"
                 name="kcal"
@@ -234,7 +291,7 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="food-protein">Proteína (g)</Label>
+              <Label htmlFor="food-protein">{s.protein}</Label>
               <Input
                 id="food-protein"
                 name="protein"
@@ -246,7 +303,7 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="food-carbs">Carbohidratos (g)</Label>
+              <Label htmlFor="food-carbs">{s.carbs}</Label>
               <Input
                 id="food-carbs"
                 name="carbs"
@@ -258,7 +315,7 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="food-fat">Grasa (g)</Label>
+              <Label htmlFor="food-fat">{s.fat}</Label>
               <Input
                 id="food-fat"
                 name="fat"
@@ -273,7 +330,7 @@ export function FoodFormDialog({ open, onOpenChange, food }: FoodFormDialogProps
           {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
             <Button type="submit" disabled={pending}>
-              {pending ? "Guardando…" : "Guardar"}
+              {pending ? s.saving : s.save}
             </Button>
           </DialogFooter>
         </form>

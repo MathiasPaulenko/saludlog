@@ -20,6 +20,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ExerciseOption } from "@/lib/queries/exercises";
 import type { RoutineWithItems } from "@/lib/queries/routines";
+import { useT } from "@/lib/use-locale";
+
+const S = {
+  es: {
+    editRoutine: "Editar rutina",
+    newRoutine: "Nueva rutina",
+    name: "Nombre",
+    notes: "Notas",
+    optional: "Opcional",
+    exercise: "Ejercicio",
+    sets: "Series",
+    reps: "Reps",
+    up: "Subir",
+    down: "Bajar",
+    removeExercise: "Quitar ejercicio",
+    addExercise: "Agregar ejercicio",
+    saving: "Guardando…",
+    save: "Guardar rutina",
+    errorNoName: "La rutina necesita un nombre.",
+    errorNoItems: "Agregá al menos un ejercicio con series y reps.",
+  },
+  en: {
+    editRoutine: "Edit routine",
+    newRoutine: "New routine",
+    name: "Name",
+    notes: "Notes",
+    optional: "Optional",
+    exercise: "Exercise",
+    sets: "Sets",
+    reps: "Reps",
+    up: "Up",
+    down: "Down",
+    removeExercise: "Remove exercise",
+    addExercise: "Add exercise",
+    saving: "Saving…",
+    save: "Save routine",
+    errorNoName: "The routine needs a name.",
+    errorNoItems: "Add at least one exercise with sets and reps.",
+  },
+};
 
 interface ItemRow {
   key: number;
@@ -46,6 +86,7 @@ export function RoutineFormDialog({
   variant = "default",
   size = "default",
 }: RoutineFormDialogProps) {
+  const s = useT(S);
   const [open, setOpen] = useState(false);
 
   return (
@@ -57,9 +98,7 @@ export function RoutineFormDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {routine ? "Editar rutina" : "Nueva rutina"}
-            </DialogTitle>
+            <DialogTitle>{routine ? s.editRoutine : s.newRoutine}</DialogTitle>
           </DialogHeader>
           {open && (
             <RoutineForm
@@ -82,6 +121,7 @@ function RoutineForm({
 }: Pick<RoutineFormDialogProps, "exercises" | "routine"> & {
   onDone: () => void;
 }) {
+  const s = useT(S);
   const idByName = new Map(exercises.map((e) => [e.name.toLowerCase(), e.id]));
   const [name, setName] = useState(routine?.name ?? "");
   const [notes, setNotes] = useState(routine?.notes ?? "");
@@ -138,11 +178,11 @@ function RoutineForm({
         weightKg: r.weightKg !== "" ? Number(r.weightKg) : undefined,
       }));
     if (!name.trim()) {
-      setError("La rutina necesita un nombre.");
+      setError(s.errorNoName);
       return;
     }
     if (parsed.length === 0) {
-      setError("Agregá al menos un ejercicio con series y reps.");
+      setError(s.errorNoItems);
       return;
     }
     startTransition(async () => {
@@ -160,7 +200,7 @@ function RoutineForm({
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="routine-name">Nombre</Label>
+          <Label htmlFor="routine-name">{s.name}</Label>
           <Input
             id="routine-name"
             value={name}
@@ -170,21 +210,21 @@ function RoutineForm({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="routine-notes">Notas</Label>
+          <Label htmlFor="routine-notes">{s.notes}</Label>
           <Input
             id="routine-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Opcional"
+            placeholder={s.optional}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-[1fr_4.5rem_4.5rem_5rem_4.5rem_2rem] items-center gap-2 text-xs font-medium text-muted-foreground">
-          <span>Ejercicio</span>
-          <span>Series</span>
-          <span>Reps</span>
+          <span>{s.exercise}</span>
+          <span>{s.sets}</span>
+          <span>{s.reps}</span>
           <span>Kg</span>
           <span />
           <span />
@@ -226,7 +266,7 @@ function RoutineForm({
                 size="icon-sm"
                 onClick={() => move(row.key, -1)}
                 disabled={idx === 0}
-                aria-label="Subir"
+                aria-label={s.up}
               >
                 <ArrowUp />
               </Button>
@@ -235,7 +275,7 @@ function RoutineForm({
                 size="icon-sm"
                 onClick={() => move(row.key, 1)}
                 disabled={idx === items.length - 1}
-                aria-label="Bajar"
+                aria-label={s.down}
               >
                 <ArrowDown />
               </Button>
@@ -244,7 +284,7 @@ function RoutineForm({
               variant="ghost"
               size="icon-sm"
               onClick={() => removeItem(row.key)}
-              aria-label="Quitar ejercicio"
+              aria-label={s.removeExercise}
             >
               <X />
             </Button>
@@ -252,7 +292,7 @@ function RoutineForm({
         ))}
         <Button variant="outline" size="sm" onClick={addItem} className="w-fit">
           <Plus />
-          Agregar ejercicio
+          {s.addExercise}
         </Button>
         <datalist id="routine-exercise-catalog">
           {exercises.map((e) => (
@@ -268,7 +308,7 @@ function RoutineForm({
       {error && <p className="text-sm text-destructive">{error}</p>}
       <DialogFooter>
         <Button onClick={handleSubmit} disabled={pending}>
-          {pending ? "Guardando…" : "Guardar rutina"}
+          {pending ? s.saving : s.save}
         </Button>
       </DialogFooter>
     </div>

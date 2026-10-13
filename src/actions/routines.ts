@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { routineItems, routines, workouts, workoutSets } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const itemSchema = z.object({
@@ -33,12 +34,13 @@ export async function saveRoutine(
   routineId: number | null,
   input: unknown,
 ): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = routineSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? s.invalidData };
   }
   if (routineId != null && !idSchema.safeParse(routineId).success) {
-    return { ok: false, error: "ID inválido" };
+    return { ok: false, error: s.invalidId };
   }
 
   const { name, notes, items } = parsed.data;
@@ -48,7 +50,7 @@ export async function saveRoutine(
     .where(eq(routines.name, name))
     .get();
   if (existing && existing.id !== routineId) {
-    return { ok: false, error: "Ya existe una rutina con ese nombre" };
+    return { ok: false, error: s.routineNameTaken };
   }
 
   db.transaction((tx) => {
@@ -96,8 +98,9 @@ export async function applyRoutine(
   routineId: number,
   date?: string,
 ): Promise<ActionResult> {
+  const s = await actionStrings();
   if (!idSchema.safeParse(routineId).success) {
-    return { ok: false, error: "ID inválido" };
+    return { ok: false, error: s.invalidId };
   }
   const d =
     date && /^\d{4}-\d{2}-\d{2}$/.test(date)
@@ -116,7 +119,7 @@ export async function applyRoutine(
     .where(eq(routines.id, routineId))
     .get();
   if (!routine || items.length === 0) {
-    return { ok: false, error: "Rutina no encontrada" };
+    return { ok: false, error: s.routineNotFound };
   }
 
   const workout = db

@@ -25,6 +25,46 @@ import {
 } from "@/lib/labels";
 import type { ExerciseOption } from "@/lib/queries/exercises";
 import type { WorkoutWithSets } from "@/lib/queries/workouts";
+import { useLocale, useT } from "@/lib/use-locale";
+
+const S = {
+  es: {
+    editWorkout: "Editar entreno",
+    logWorkout: "Registrar entreno",
+    date: "Fecha",
+    type: "Tipo",
+    duration: "Duración (min)",
+    notes: "Notas",
+    optional: "Opcional",
+    exercise: "Ejercicio",
+    sets: "Series",
+    reps: "Reps",
+    removeSet: "Quitar serie",
+    addSet: "Agregar serie",
+    saving: "Guardando…",
+    save: "Guardar cambios",
+    log: "Registrar",
+    errorEmpty: "Indicá duración o al menos una serie.",
+  },
+  en: {
+    editWorkout: "Edit workout",
+    logWorkout: "Log workout",
+    date: "Date",
+    type: "Type",
+    duration: "Duration (min)",
+    notes: "Notes",
+    optional: "Optional",
+    exercise: "Exercise",
+    sets: "Sets",
+    reps: "Reps",
+    removeSet: "Remove set",
+    addSet: "Add set",
+    saving: "Saving…",
+    save: "Save changes",
+    log: "Log",
+    errorEmpty: "Enter a duration or at least one set.",
+  },
+};
 
 interface SetRow {
   key: number;
@@ -55,6 +95,7 @@ export function WorkoutFormDialog({
   size = "default",
   buttonClassName,
 }: WorkoutFormDialogProps) {
+  const s = useT(S);
   const [open, setOpen] = useState(false);
 
   return (
@@ -71,9 +112,7 @@ export function WorkoutFormDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {workout ? "Editar entreno" : "Registrar entreno"}
-            </DialogTitle>
+            <DialogTitle>{workout ? s.editWorkout : s.logWorkout}</DialogTitle>
           </DialogHeader>
           {open && (
             <WorkoutForm
@@ -101,6 +140,8 @@ function WorkoutForm({
 }: Pick<WorkoutFormDialogProps, "defaultDate" | "exercises" | "workout"> & {
   onDone: () => void;
 }) {
+  const s = useT(S);
+  const locale = useLocale();
   const idByName = exerciseIdByName(exercises);
   const [date, setDate] = useState(workout?.date ?? defaultDate);
   const [type, setType] = useState<WorkoutType>(workout?.type ?? "gym");
@@ -156,7 +197,7 @@ function WorkoutForm({
 
     const duration = durationMin !== "" ? Number(durationMin) : undefined;
     if (duration === undefined && parsedSets.length === 0) {
-      setError("Indicá duración o al menos una serie.");
+      setError(s.errorEmpty);
       return;
     }
 
@@ -183,7 +224,7 @@ function WorkoutForm({
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="workout-date">Fecha</Label>
+          <Label htmlFor="workout-date">{s.date}</Label>
           <Input
             id="workout-date"
             type="date"
@@ -193,22 +234,22 @@ function WorkoutForm({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="workout-type">Tipo</Label>
+          <Label htmlFor="workout-type">{s.type}</Label>
           <select
             id="workout-type"
             value={type}
             onChange={(e) => setType(e.target.value as WorkoutType)}
             className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
           >
-            {WORKOUT_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {WORKOUT_TYPE_LABELS[t]}
+            {WORKOUT_TYPES.map((wt) => (
+              <option key={wt} value={wt}>
+                {WORKOUT_TYPE_LABELS[locale][wt]}
               </option>
             ))}
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="workout-duration">Duración (min)</Label>
+          <Label htmlFor="workout-duration">{s.duration}</Label>
           <Input
             id="workout-duration"
             type="number"
@@ -218,21 +259,21 @@ function WorkoutForm({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="workout-notes">Notas</Label>
+          <Label htmlFor="workout-notes">{s.notes}</Label>
           <Input
             id="workout-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Opcional"
+            placeholder={s.optional}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-[1fr_4.5rem_4.5rem_5rem_2rem] items-center gap-2 text-xs font-medium text-muted-foreground">
-          <span>Ejercicio</span>
-          <span>Series</span>
-          <span>Reps</span>
+          <span>{s.exercise}</span>
+          <span>{s.sets}</span>
+          <span>{s.reps}</span>
           <span>Kg</span>
           <span />
         </div>
@@ -271,7 +312,7 @@ function WorkoutForm({
               variant="ghost"
               size="icon-sm"
               onClick={() => removeSet(row.key)}
-              aria-label="Quitar serie"
+              aria-label={s.removeSet}
             >
               <X />
             </Button>
@@ -279,7 +320,7 @@ function WorkoutForm({
         ))}
         <Button variant="outline" size="sm" onClick={addSet} className="w-fit">
           <Plus />
-          Agregar serie
+          {s.addSet}
         </Button>
         <datalist id="exercise-catalog">
           {exercises.map((e) => (
@@ -295,7 +336,7 @@ function WorkoutForm({
       {error && <p className="text-sm text-destructive">{error}</p>}
       <DialogFooter>
         <Button onClick={handleSubmit} disabled={pending}>
-          {pending ? "Guardando…" : workout ? "Guardar cambios" : "Registrar"}
+          {pending ? s.saving : workout ? s.save : s.log}
         </Button>
       </DialogFooter>
     </div>

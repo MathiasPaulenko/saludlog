@@ -19,19 +19,50 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { TrainingPlanItem } from "@/db/schema";
-import { WORKOUT_TYPES, WORKOUT_TYPE_LABELS, type WorkoutType } from "@/lib/labels";
+import {
+  WEEKDAY_LABELS,
+  WORKOUT_TYPES,
+  WORKOUT_TYPE_LABELS,
+  type WorkoutType,
+} from "@/lib/labels";
 import type { RoutineWithItems } from "@/lib/queries/routines";
+import { useLocale, useT } from "@/lib/use-locale";
 import { cn } from "cn";
 
-const DAYS = [
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-  "Domingo",
-];
+const S = {
+  es: {
+    title: "Plan semanal",
+    addOn: (day: string) => `Agregar el ${day}`,
+    workoutOf: (day: string) => `Entreno del ${day}`,
+    routine: "Rutina (opcional)",
+    noRoutine: "— sin rutina —",
+    name: "Nombre",
+    minutes: "Minutos",
+    type: "Tipo",
+    add: "Agregar",
+    saving: "Guardando…",
+    errorNoName: "Indicá un nombre o elegí una rutina.",
+    namePlaceholder: "Ej: Cardio zona 2",
+    logOn: (title: string, day: string) => `Loggear ${title} el ${day}`,
+    remove: (title: string) => `Quitar ${title}`,
+  },
+  en: {
+    title: "Weekly plan",
+    addOn: (day: string) => `Add on ${day}`,
+    workoutOf: (day: string) => `${day}'s workout`,
+    routine: "Routine (optional)",
+    noRoutine: "— no routine —",
+    name: "Name",
+    minutes: "Minutes",
+    type: "Type",
+    add: "Add",
+    saving: "Saving…",
+    errorNoName: "Enter a name or pick a routine.",
+    namePlaceholder: "E.g.: Zone 2 cardio",
+    logOn: (title: string, day: string) => `Log ${title} on ${day}`,
+    remove: (title: string) => `Remove ${title}`,
+  },
+};
 
 export function TrainingPlanSection({
   plan,
@@ -43,13 +74,15 @@ export function TrainingPlanSection({
   weekStart: string;
 }) {
   const today = (new Date().getDay() + 6) % 7;
+  const s = useT(S);
+  const days = WEEKDAY_LABELS[useLocale()];
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">Plan semanal</h2>
+      <h2 className="text-lg font-semibold">{s.title}</h2>
       <div className="overflow-x-auto pb-2">
         <div className="grid min-w-[60rem] grid-cols-7 gap-3">
-          {DAYS.map((day, d) => (
+          {days.map((day, d) => (
             <DayColumn
               key={day}
               day={day}
@@ -82,6 +115,7 @@ function DayColumn({
   date: string;
 }) {
   const [pending, startTransition] = useTransition();
+  const s = useT(S);
   return (
     <section className="flex min-h-28 flex-col gap-1.5 rounded-lg border border-border p-2">
       <div className="flex items-center justify-between">
@@ -120,7 +154,7 @@ function DayColumn({
                     void applyRoutine(it.routineId!, date);
                   })
                 }
-                aria-label={`Loggear ${it.title} el ${day}`}
+                aria-label={s.logOn(it.title, day)}
                 className="hidden shrink-0 rounded p-0.5 text-primary hover:bg-primary/10 group-hover:block"
               >
                 <Play className="size-3.5" />
@@ -129,7 +163,7 @@ function DayColumn({
             <form action={deleteTrainingPlanItem.bind(null, it.id)}>
               <button
                 type="submit"
-                aria-label={`Quitar ${it.title}`}
+                aria-label={s.remove(it.title)}
                 className="hidden shrink-0 rounded p-0.5 text-muted-foreground hover:text-destructive group-hover:block"
               >
                 <X className="size-3.5" />
@@ -158,6 +192,8 @@ function AddPlanItemDialog({
   const [durationMin, setDurationMin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const s = useT(S);
+  const locale = useLocale();
 
   function pickRoutine(id: string) {
     setRoutineId(id);
@@ -170,7 +206,7 @@ function AddPlanItemDialog({
 
   function handleSubmit() {
     if (!title.trim()) {
-      setError("Indicá un nombre o elegí una rutina.");
+      setError(s.errorNoName);
       return;
     }
     startTransition(async () => {
@@ -198,25 +234,25 @@ function AddPlanItemDialog({
         variant="ghost"
         size="icon-sm"
         onClick={() => setOpen(true)}
-        aria-label={`Agregar el ${dayLabel}`}
+        aria-label={s.addOn(dayLabel)}
       >
         <Plus />
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Entreno del {dayLabel}</DialogTitle>
+            <DialogTitle>{s.workoutOf(dayLabel)}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="plan-routine">Rutina (opcional)</Label>
+              <Label htmlFor="plan-routine">{s.routine}</Label>
               <select
                 id="plan-routine"
                 value={routineId}
                 onChange={(e) => pickRoutine(e.target.value)}
                 className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
               >
-                <option value="">— sin rutina —</option>
+                <option value="">{s.noRoutine}</option>
                 {routines.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.name}
@@ -226,16 +262,16 @@ function AddPlanItemDialog({
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2 flex flex-col gap-1.5">
-                <Label htmlFor="plan-title">Nombre</Label>
+                <Label htmlFor="plan-title">{s.name}</Label>
                 <Input
                   id="plan-title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ej: Cardio zona 2"
+                  placeholder={s.namePlaceholder}
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="plan-min">Minutos</Label>
+                <Label htmlFor="plan-min">{s.minutes}</Label>
                 <Input
                   id="plan-min"
                   type="number"
@@ -247,16 +283,16 @@ function AddPlanItemDialog({
               </div>
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="plan-type">Tipo</Label>
+              <Label htmlFor="plan-type">{s.type}</Label>
               <select
                 id="plan-type"
                 value={type}
                 onChange={(e) => setType(e.target.value as WorkoutType)}
                 className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
               >
-                {WORKOUT_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {WORKOUT_TYPE_LABELS[t]}
+                {WORKOUT_TYPES.map((wt) => (
+                  <option key={wt} value={wt}>
+                    {WORKOUT_TYPE_LABELS[locale][wt]}
                   </option>
                 ))}
               </select>
@@ -265,7 +301,7 @@ function AddPlanItemDialog({
           </div>
           <DialogFooter>
             <Button onClick={handleSubmit} disabled={pending}>
-              {pending ? "Guardando…" : "Agregar"}
+              {pending ? s.saving : s.add}
             </Button>
           </DialogFooter>
         </DialogContent>

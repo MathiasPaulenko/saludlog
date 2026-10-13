@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { bodyMetrics } from "@/db/schema";
+import { actionStrings } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const metricSchema = z.object({
@@ -23,8 +24,9 @@ function revalidateMetrics() {
 }
 
 export async function upsertMetric(input: unknown): Promise<ActionResult> {
+  const s = await actionStrings();
   const parsed = metricSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Datos inválidos" };
+  if (!parsed.success) return { ok: false, error: s.invalidData };
 
   const { date, weightKg, bodyFatPct, waistCm, notes } = parsed.data;
   db.insert(bodyMetrics)

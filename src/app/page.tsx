@@ -1,5 +1,4 @@
 import { addDays, format, parseISO } from "date-fns";
-import { es } from "date-fns/locale";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -24,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { habitStats, weekBuckets, weightSeries } from "@/lib/chart-data";
+import { dateFnsLocale, getLocale, t } from "@/lib/i18n";
 import { WORKOUT_TYPE_LABELS } from "@/lib/labels";
 import { roundMacros } from "@/lib/macros";
 import { listExercises } from "@/lib/queries/exercises";
@@ -44,10 +44,75 @@ import {
   getWorkoutsInRange,
 } from "@/lib/queries/workouts";
 
+const S = {
+  es: {
+    loading: "Cargando…",
+    today: "Hoy",
+    day: "Día",
+    backToToday: "Volver a hoy",
+    meals: "Comidas",
+    mealsDesc: "Consumido vs meta",
+    logMeal: "Registrar comida",
+    calories: "Calorías",
+    protein: "Proteína",
+    fat: "Grasa",
+    workout: "Entreno",
+    noWorkouts: "Sin entrenos",
+    session: "sesión",
+    sessions: "sesiones",
+    min: "min",
+    logWorkout: "Registrar entreno",
+    notTrainedYet: "Todavía no entrenaste este día.",
+    exercise: "ejercicio",
+    exercises: "ejercicios",
+    habits: "Hábitos",
+    done: "completados",
+    noHabits: "No hay hábitos activos.",
+    weight: "Peso",
+    lastRecord: "Último registro",
+    noRecords: "Sin registros",
+    logWeight: "Registrar peso",
+    vsPrev: "Vs anterior",
+    trends: "Tendencias",
+    seeDetail: "Ver detalle",
+  },
+  en: {
+    loading: "Loading…",
+    today: "Today",
+    day: "Day",
+    backToToday: "Back to today",
+    meals: "Meals",
+    mealsDesc: "Consumed vs goal",
+    logMeal: "Log meal",
+    calories: "Calories",
+    protein: "Protein",
+    fat: "Fat",
+    workout: "Workout",
+    noWorkouts: "No workouts",
+    session: "session",
+    sessions: "sessions",
+    min: "min",
+    logWorkout: "Log workout",
+    notTrainedYet: "You haven't trained this day.",
+    exercise: "exercise",
+    exercises: "exercises",
+    habits: "Habits",
+    done: "done",
+    noHabits: "No active habits.",
+    weight: "Weight",
+    lastRecord: "Last entry",
+    noRecords: "No records",
+    logWeight: "Log weight",
+    vsPrev: "Vs previous",
+    trends: "Trends",
+    seeDetail: "See detail",
+  },
+};
+
 export default function TodayPage({ searchParams }: PageProps<"/">) {
   return (
     <div className="flex flex-col gap-8">
-      <Suspense fallback={<p className="text-muted-foreground">Cargando…</p>}>
+      <Suspense fallback={<p className="text-muted-foreground">…</p>}>
         <DayCards searchParams={searchParams} />
       </Suspense>
       <Suspense fallback={null}>
@@ -69,7 +134,9 @@ async function DayCards({
   searchParams: PageProps<"/">["searchParams"];
 }) {
   await connection();
-  const { date: raw } = await searchParams;
+  const [{ date: raw }, locale] = await Promise.all([searchParams, getLocale()]);
+  const s = t(S, locale);
+  const loc = dateFnsLocale(locale);
   const date = parseDate(raw);
   const today = format(new Date(), "yyyy-MM-dd");
   const isToday = date === today;
@@ -94,7 +161,7 @@ async function DayCards({
     listExercises(),
   ]);
 
-  const t = roundMacros(totals);
+  const tm = roundMacros(totals);
   const valueByHabit = new Map(logs.map((l) => [l.habitId, l.value]));
   const doneCount = activeHabits.filter((h) => {
     const v = valueByHabit.get(h.id) ?? 0;
@@ -112,16 +179,18 @@ async function DayCards({
   const delta =
     latest && previous ? latest.weightKg - previous.weightKg : null;
 
-  const rawLabel = format(parseISO(date), "EEEE d 'de' MMMM", {
-    locale: es,
-  });
+  const rawLabel = format(
+    parseISO(date),
+    locale === "en" ? "EEEE, MMMM d" : "EEEE d 'de' MMMM",
+    { locale: loc },
+  );
   const dateLabel = rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-baseline gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">
-          {isToday ? "Hoy" : "Día"}
+          {isToday ? s.today : s.day}
         </h1>
         <p className="text-muted-foreground">{dateLabel}</p>
         {!isToday && (
@@ -129,7 +198,7 @@ async function DayCards({
             href="/"
             className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
           >
-            Volver a hoy
+            {s.backToToday}
           </Link>
         )}
       </div>
@@ -138,14 +207,14 @@ async function DayCards({
         <Card>
           <CardHeader>
             <div>
-              <CardTitle>Comidas</CardTitle>
-              <CardDescription>Consumido vs meta</CardDescription>
+              <CardTitle>{s.meals}</CardTitle>
+              <CardDescription>{s.mealsDesc}</CardDescription>
             </div>
             <CardAction>
               <MealFormDialog
                 foods={foods}
                 defaultDate={date}
-                label="Registrar comida"
+                label={s.logMeal}
                 icon={<Plus />}
                 size="sm"
               />
@@ -153,40 +222,40 @@ async function DayCards({
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             <GoalProgress
-              label="Calorías"
-              value={t.kcal}
+              label={s.calories}
+              value={tm.kcal}
               goal={goals.daily_kcal}
               unit="kcal"
             />
             <GoalProgress
-              label="Proteína"
-              value={t.protein}
+              label={s.protein}
+              value={tm.protein}
               goal={goals.daily_protein}
               unit="g"
             />
             <div className="grid grid-cols-2 gap-3">
-              <Stat label="Carbs" value={`${t.carbs} g`} />
-              <Stat label="Grasa" value={`${t.fat} g`} />
+              <Stat label="Carbs" value={`${tm.carbs} g`} />
+              <Stat label={s.fat} value={`${tm.fat} g`} />
             </div>
-            <SectionLink href={`/meals?date=${date}`} />
+            <SectionLink href={`/meals?date=${date}`} label={s.seeDetail} />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <div>
-              <CardTitle>Entreno</CardTitle>
+              <CardTitle>{s.workout}</CardTitle>
               <CardDescription>
                 {dayWorkouts.length === 0
-                  ? "Sin entrenos"
-                  : `${dayWorkouts.length} sesión${dayWorkouts.length === 1 ? "" : "es"} · ${totalMin} min`}
+                  ? s.noWorkouts
+                  : `${dayWorkouts.length} ${dayWorkouts.length === 1 ? s.session : s.sessions} · ${totalMin} ${s.min}`}
               </CardDescription>
             </div>
             <CardAction>
               <WorkoutFormDialog
                 defaultDate={date}
                 exercises={exercises}
-                label="Registrar entreno"
+                label={s.logWorkout}
                 icon={<Plus />}
                 size="sm"
               />
@@ -195,37 +264,37 @@ async function DayCards({
           <CardContent className="flex flex-col gap-4">
             {dayWorkouts.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Todavía no entrenaste este día.
+                {s.notTrainedYet}
               </p>
             ) : (
               <ul className="flex flex-col gap-1 text-sm">
                 {dayWorkouts.map((w) => (
                   <li key={w.id}>
-                    {WORKOUT_TYPE_LABELS[w.type]}
-                    {w.durationMin != null && ` · ${w.durationMin} min`}
+                    {WORKOUT_TYPE_LABELS[locale][w.type]}
+                    {w.durationMin != null && ` · ${w.durationMin} ${s.min}`}
                     {w.sets.length > 0 &&
-                      ` · ${w.sets.length} ejercicio${w.sets.length === 1 ? "" : "s"}`}
+                      ` · ${w.sets.length} ${w.sets.length === 1 ? s.exercise : s.exercises}`}
                   </li>
                 ))}
               </ul>
             )}
-            <SectionLink href={`/workouts?date=${date}`} />
+            <SectionLink href={`/workouts?date=${date}`} label={s.seeDetail} />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <div>
-              <CardTitle>Hábitos</CardTitle>
+              <CardTitle>{s.habits}</CardTitle>
               <CardDescription>
-                {doneCount}/{activeHabits.length} completados
+                {doneCount}/{activeHabits.length} {s.done}
               </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {activeHabits.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No hay hábitos activos.
+                {s.noHabits}
               </p>
             ) : (
               activeHabits.map((habit) => (
@@ -237,24 +306,24 @@ async function DayCards({
                 />
               ))
             )}
-            <SectionLink href={`/habits?date=${date}`} />
+            <SectionLink href={`/habits?date=${date}`} label={s.seeDetail} />
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <div>
-              <CardTitle>Peso</CardTitle>
+              <CardTitle>{s.weight}</CardTitle>
               <CardDescription>
                 {latest
-                  ? `Último registro: ${format(parseISO(latest.date), "d MMM", { locale: es })}`
-                  : "Sin registros"}
+                  ? `${s.lastRecord}: ${format(parseISO(latest.date), "d MMM", { locale: loc })}`
+                  : s.noRecords}
               </CardDescription>
             </div>
             <CardAction>
               <MetricFormDialog
                 defaultDate={date}
-                label="Registrar peso"
+                label={s.logWeight}
                 icon={<Plus />}
                 size="sm"
               />
@@ -263,11 +332,11 @@ async function DayCards({
           <CardContent className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-3">
               <Stat
-                label="Peso"
+                label={s.weight}
                 value={latest ? `${latest.weightKg} kg` : "—"}
               />
               <Stat
-                label="Vs anterior"
+                label={s.vsPrev}
                 value={
                   delta != null
                     ? `${delta > 0 ? "+" : ""}${Math.round(delta * 10) / 10} kg`
@@ -275,7 +344,7 @@ async function DayCards({
                 }
               />
             </div>
-            <SectionLink href="/metrics" />
+            <SectionLink href="/metrics" label={s.seeDetail} />
           </CardContent>
         </Card>
       </div>
@@ -289,7 +358,12 @@ async function TrendsSection({
   searchParams: PageProps<"/">["searchParams"];
 }) {
   await connection();
-  const { range: rawRange } = await searchParams;
+  const [{ range: rawRange }, locale] = await Promise.all([
+    searchParams,
+    getLocale(),
+  ]);
+  const s = t(S, locale);
+  const loc = dateFnsLocale(locale);
   const range = rawRange === "7" || rawRange === "30" ? Number(rawRange) : 14;
 
   const today = format(new Date(), "yyyy-MM-dd");
@@ -317,7 +391,7 @@ async function TrendsSection({
     const d = totalsByDate.get(date);
     return {
       date,
-      label: format(parseISO(date), "d MMM", { locale: es }),
+      label: format(parseISO(date), "d MMM", { locale: loc }),
       kcal: Math.round(d?.kcal ?? 0),
       protein: Math.round((d?.protein ?? 0) * 10) / 10,
       carbs: Math.round((d?.carbs ?? 0) * 10) / 10,
@@ -329,17 +403,17 @@ async function TrendsSection({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <h2 className="text-xl font-semibold tracking-tight">Tendencias</h2>
+        <h2 className="text-xl font-semibold tracking-tight">{s.trends}</h2>
         <RangeNav range={range} />
       </div>
       <div className="grid max-w-5xl gap-4 lg:grid-cols-2">
-        <WeightChart data={weightSeries(metrics)} />
+        <WeightChart data={weightSeries(metrics, locale)} />
         <MacrosChart
           data={macroData}
           kcalGoal={goals.daily_kcal}
           proteinGoal={goals.daily_protein}
         />
-        <WorkoutsChart data={weekBuckets(rangeWorkouts, today)} />
+        <WorkoutsChart data={weekBuckets(rangeWorkouts, today, locale)} />
         <HabitsChart data={habitStats(habits, habitLogs, rangeDays, today)} />
       </div>
     </div>
@@ -351,13 +425,13 @@ function startOfWeekDate(d: Date): Date {
   return addDays(d, -day);
 }
 
-function SectionLink({ href }: { href: string }) {
+function SectionLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
       className="w-fit text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
     >
-      Ver detalle
+      {label}
     </Link>
   );
 }

@@ -3,6 +3,12 @@
 import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/use-locale";
+
+const S = {
+  es: { toDark: "Modo oscuro", toLight: "Modo claro", aDark: "Cambiar a modo oscuro", aLight: "Cambiar a modo claro" },
+  en: { toDark: "Dark mode", toLight: "Light mode", aDark: "Switch to dark mode", aLight: "Switch to light mode" },
+};
 
 const subscribe = (cb: () => void) => {
   const o = new MutationObserver(cb);
@@ -19,6 +25,7 @@ export function ThemeToggle() {
     () => document.documentElement.classList.contains("light"),
     () => false,
   );
+  const s = useT(S);
 
   function toggle() {
     const el = document.documentElement;
@@ -34,10 +41,10 @@ export function ThemeToggle() {
       size="sm"
       onClick={toggle}
       className="w-full justify-start gap-2.5 px-3 text-muted-foreground"
-      aria-label={light ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
+      aria-label={light ? s.aDark : s.aLight}
     >
       {light ? <Moon className="size-4" /> : <Sun className="size-4" />}
-      {light ? "Modo oscuro" : "Modo claro"}
+      {light ? s.toDark : s.toLight}
     </Button>
   );
 }

@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { Plus, Repeat } from "lucide-react";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -25,16 +24,66 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Food } from "@/db/schema";
+import {
+  dateFnsLocale,
+  getLocale,
+  t,
+  type Locale,
+} from "@/lib/i18n";
 import { BASE_UNIT_LABELS, MEAL_TYPES, MEAL_TYPE_LABELS } from "@/lib/labels";
 import { computeMealMacros, roundMacros } from "@/lib/macros";
 import { listFoods } from "@/lib/queries/foods";
 import { getDayTotals, getMealsForDate, type MealWithItems } from "@/lib/queries/meals";
 
+const S = {
+  es: {
+    title: "Comidas",
+    logMeal: "Registrar comida",
+    edit: "Editar",
+    calories: "Calorías",
+    protein: "Proteína",
+    carbs: "Carbohidratos",
+    fat: "Grasa",
+    noMeals: "No hay comidas registradas este día.",
+    repeatToday: "Repetir hoy",
+    delete: "Eliminar",
+    confirmDelete: "¿Eliminar esta comida?",
+    food: "alimento",
+    foodsWord: "alimentos",
+    foodCol: "Alimento",
+    amountCol: "Cantidad",
+    protCol: "Prot.",
+    carbsCol: "Carbs",
+    fatCol: "Grasa",
+    total: "Total",
+  },
+  en: {
+    title: "Meals",
+    logMeal: "Log meal",
+    edit: "Edit",
+    calories: "Calories",
+    protein: "Protein",
+    carbs: "Carbs",
+    fat: "Fat",
+    noMeals: "No meals logged this day.",
+    repeatToday: "Repeat today",
+    delete: "Delete",
+    confirmDelete: "Delete this meal?",
+    food: "food",
+    foodsWord: "foods",
+    foodCol: "Food",
+    amountCol: "Amount",
+    protCol: "Prot.",
+    carbsCol: "Carbs",
+    fatCol: "Fat",
+    total: "Total",
+  },
+};
+
 export default function MealsPage({ searchParams }: PageProps<"/meals">) {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Comidas</h1>
-      <Suspense fallback={<p className="text-muted-foreground">Cargando…</p>}>
+      <Suspense fallback={<p className="text-muted-foreground">…</p>}>
         <MealsDay searchParams={searchParams} />
       </Suspense>
     </div>
@@ -47,7 +96,12 @@ async function MealsDay({
   searchParams: PageProps<"/meals">["searchParams"];
 }) {
   await connection();
-  const { date: raw } = await searchParams;
+  const [{ date: raw }, locale] = await Promise.all([
+    searchParams,
+    getLocale(),
+  ]);
+  const s = t(S, locale);
+  const loc = dateFnsLocale(locale);
   const date =
     typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw)
       ? raw
@@ -58,19 +112,22 @@ async function MealsDay({
     listFoods(),
     getDayTotals(date),
   ]);
-  const t = roundMacros(totals);
-  const dateLabel = format(new Date(`${date}T12:00:00`), "EEEE d 'de' MMMM", {
-    locale: es,
-  });
+  const tm = roundMacros(totals);
+  const dateLabel = format(
+    new Date(`${date}T12:00:00`),
+    locale === "en" ? "EEEE, MMMM d" : "EEEE d 'de' MMMM",
+    { locale: loc },
+  );
 
   return (
     <>
+      <h1 className="text-2xl font-semibold tracking-tight">{s.title}</h1>
       <div className="flex flex-wrap items-center gap-3">
         <DateNav date={date} />
         <MealFormDialog
           foods={allFoods}
           defaultDate={date}
-          label="Registrar comida"
+          label={s.logMeal}
           icon={<Plus />}
           buttonClassName="ml-auto"
         />
@@ -79,15 +136,15 @@ async function MealsDay({
       <p className="text-sm capitalize text-muted-foreground">{dateLabel}</p>
 
       <div className="grid max-w-2xl grid-cols-4 gap-3">
-        <Stat label="Calorías" value={`${t.kcal} kcal`} />
-        <Stat label="Proteína" value={`${t.protein} g`} />
-        <Stat label="Carbohidratos" value={`${t.carbs} g`} />
-        <Stat label="Grasa" value={`${t.fat} g`} />
+        <Stat label={s.calories} value={`${tm.kcal} kcal`} />
+        <Stat label={s.protein} value={`${tm.protein} g`} />
+        <Stat label={s.carbs} value={`${tm.carbs} g`} />
+        <Stat label={s.fat} value={`${tm.fat} g`} />
       </div>
 
       {dayMeals.length === 0 ? (
         <p className="text-muted-foreground">
-          No hay comidas registradas este día.
+          {s.noMeals}
         </p>
       ) : (
         <div className="flex max-w-3xl flex-col gap-4">
@@ -95,7 +152,12 @@ async function MealsDay({
             dayMeals
               .filter((m) => m.type === type)
               .map((meal) => (
-                <MealCard key={meal.id} meal={meal} foods={allFoods} />
+                <MealCard
+                  key={meal.id}
+                  meal={meal}
+                  foods={allFoods}
+                  locale={locale}
+                />
               )),
           )}
         </div>
@@ -113,7 +175,16 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MealCard({ meal, foods }: { meal: MealWithItems; foods: Food[] }) {
+function MealCard({
+  meal,
+  foods,
+  locale,
+}: {
+  meal: MealWithItems;
+  foods: Food[];
+  locale: Locale;
+}) {
+  const s = t(S, locale);
   const macros = roundMacros(
     computeMealMacros(
       meal.items.map((i) => ({ food: i.food, amount: i.item.amount })),
@@ -124,7 +195,7 @@ function MealCard({ meal, foods }: { meal: MealWithItems; foods: Food[] }) {
     <Card>
       <CardHeader>
         <div className="flex items-baseline gap-3">
-          <CardTitle>{MEAL_TYPE_LABELS[meal.type]}</CardTitle>
+          <CardTitle>{MEAL_TYPE_LABELS[locale][meal.type]}</CardTitle>
           <span className="text-sm text-muted-foreground">
             {macros.kcal} kcal
           </span>
@@ -134,22 +205,22 @@ function MealCard({ meal, foods }: { meal: MealWithItems; foods: Food[] }) {
             foods={foods}
             defaultDate={meal.date}
             meal={meal}
-            label="Editar"
+            label={s.edit}
             variant="ghost"
             size="sm"
           />
           <form action={repeatMeal.bind(null, meal.id)}>
             <Button variant="ghost" size="sm" type="submit">
               <Repeat />
-              Repetir hoy
+              {s.repeatToday}
             </Button>
           </form>
           <form action={deleteMeal.bind(null, meal.id)}>
             <ConfirmSubmit
-              message="¿Eliminar esta comida?"
+              message={s.confirmDelete}
               className="inline-flex h-7 items-center rounded-lg px-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-destructive"
             >
-              Eliminar
+              {s.delete}
             </ConfirmSubmit>
           </form>
         </CardAction>
@@ -160,18 +231,19 @@ function MealCard({ meal, foods }: { meal: MealWithItems; foods: Food[] }) {
         )}
         <details>
           <summary className="cursor-pointer text-sm text-muted-foreground">
-            {meal.items.length} alimento{meal.items.length === 1 ? "" : "s"} · P{" "}
+            {meal.items.length}{" "}
+            {meal.items.length === 1 ? s.food : s.foodsWord} · P{" "}
             {macros.protein} g · C {macros.carbs} g · G {macros.fat} g
           </summary>
           <Table className="mt-2">
             <TableHeader>
               <TableRow>
-                <TableHead>Alimento</TableHead>
-                <TableHead className="text-right">Cantidad</TableHead>
+                <TableHead>{s.foodCol}</TableHead>
+                <TableHead className="text-right">{s.amountCol}</TableHead>
                 <TableHead className="text-right">kcal</TableHead>
-                <TableHead className="text-right">Prot.</TableHead>
-                <TableHead className="text-right">Carbs</TableHead>
-                <TableHead className="text-right">Grasa</TableHead>
+                <TableHead className="text-right">{s.protCol}</TableHead>
+                <TableHead className="text-right">{s.carbsCol}</TableHead>
+                <TableHead className="text-right">{s.fatCol}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -195,7 +267,7 @@ function MealCard({ meal, foods }: { meal: MealWithItems; foods: Food[] }) {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={2}>Total</TableCell>
+                <TableCell colSpan={2}>{s.total}</TableCell>
                 <TableCell className="text-right">{macros.kcal}</TableCell>
                 <TableCell className="text-right">{macros.protein}</TableCell>
                 <TableCell className="text-right">{macros.carbs}</TableCell>

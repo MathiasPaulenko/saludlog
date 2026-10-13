@@ -32,6 +32,48 @@ import {
   roundMacros,
 } from "@/lib/macros";
 import type { MealWithItems } from "@/lib/queries/meals";
+import { useLocale, useT } from "@/lib/use-locale";
+
+const S = {
+  es: {
+    editMeal: "Editar comida",
+    logMeal: "Registrar comida",
+    date: "Fecha",
+    type: "Tipo",
+    notes: "Notas",
+    optional: "Opcional",
+    food: "Alimento",
+    amount: "Cantidad",
+    macros: "Macros",
+    searchFood: "Buscar alimento…",
+    removeFood: "Quitar alimento",
+    addFood: "Agregar alimento",
+    total: "Total",
+    saving: "Guardando…",
+    save: "Guardar cambios",
+    log: "Registrar",
+    errorNoItems: "Agregá al menos un alimento con cantidad.",
+  },
+  en: {
+    editMeal: "Edit meal",
+    logMeal: "Log meal",
+    date: "Date",
+    type: "Type",
+    notes: "Notes",
+    optional: "Optional",
+    food: "Food",
+    amount: "Amount",
+    macros: "Macros",
+    searchFood: "Search food…",
+    removeFood: "Remove food",
+    addFood: "Add food",
+    total: "Total",
+    saving: "Saving…",
+    save: "Save changes",
+    log: "Log",
+    errorNoItems: "Add at least one food with an amount.",
+  },
+};
 
 interface ItemRow {
   key: number;
@@ -68,6 +110,7 @@ export function MealFormDialog({
   size = "default",
   buttonClassName,
 }: MealFormDialogProps) {
+  const s = useT(S);
   const [open, setOpen] = useState(false);
 
   return (
@@ -84,9 +127,7 @@ export function MealFormDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {meal ? "Editar comida" : "Registrar comida"}
-            </DialogTitle>
+            <DialogTitle>{meal ? s.editMeal : s.logMeal}</DialogTitle>
           </DialogHeader>
           {open && (
             <MealForm
@@ -111,6 +152,8 @@ function MealForm({
 }: Pick<MealFormDialogProps, "foods" | "defaultDate" | "meal"> & {
   onDone: () => void;
 }) {
+  const s = useT(S);
+  const locale = useLocale();
   const listId = useId();
   const [date, setDate] = useState(meal?.date ?? defaultDate);
   const [type, setType] = useState<MealType>(meal?.type ?? guessMealType());
@@ -163,7 +206,7 @@ function MealForm({
 
   function handleSubmit() {
     if (resolved.length === 0) {
-      setError("Agregá al menos un alimento con cantidad.");
+      setError(s.errorNoItems);
       return;
     }
     const payload = {
@@ -188,7 +231,7 @@ function MealForm({
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="meal-date">Fecha</Label>
+          <Label htmlFor="meal-date">{s.date}</Label>
           <Input
             id="meal-date"
             type="date"
@@ -198,36 +241,36 @@ function MealForm({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="meal-type">Tipo</Label>
+          <Label htmlFor="meal-type">{s.type}</Label>
           <select
             id="meal-type"
             value={type}
             onChange={(e) => setType(e.target.value as MealType)}
             className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
           >
-            {MEAL_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {MEAL_TYPE_LABELS[t]}
+            {MEAL_TYPES.map((mt) => (
+              <option key={mt} value={mt}>
+                {MEAL_TYPE_LABELS[locale][mt]}
               </option>
             ))}
           </select>
         </div>
         <div className="col-span-2 flex flex-col gap-1.5 sm:col-span-1">
-          <Label htmlFor="meal-notes">Notas</Label>
+          <Label htmlFor="meal-notes">{s.notes}</Label>
           <Input
             id="meal-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Opcional"
+            placeholder={s.optional}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
         <div className="grid grid-cols-[1fr_6rem_9rem_2rem] items-center gap-2 text-xs font-medium text-muted-foreground">
-          <span>Alimento</span>
-          <span>Cantidad</span>
-          <span className="text-right">Macros</span>
+          <span>{s.food}</span>
+          <span>{s.amount}</span>
+          <span className="text-right">{s.macros}</span>
           <span />
         </div>
         {items.map((row) => {
@@ -248,7 +291,7 @@ function MealForm({
                 onChange={(e) =>
                   updateItem(row.key, { foodName: e.target.value })
                 }
-                placeholder="Buscar alimento…"
+                placeholder={s.searchFood}
               />
               <div className="relative">
                 <Input
@@ -275,7 +318,7 @@ function MealForm({
                 size="icon-sm"
                 onClick={() => removeItem(row.key)}
                 disabled={items.length === 1}
-                aria-label="Quitar alimento"
+                aria-label={s.removeFood}
               >
                 <X />
               </Button>
@@ -289,12 +332,12 @@ function MealForm({
         </datalist>
         <Button variant="outline" size="sm" onClick={addItem} className="w-fit">
           <Plus />
-          Agregar alimento
+          {s.addFood}
         </Button>
       </div>
 
       <div className="flex items-center justify-between border-t border-border pt-3 text-sm">
-        <span className="font-medium">Total</span>
+        <span className="font-medium">{s.total}</span>
         <span className="text-muted-foreground">
           {totals.kcal} kcal · P {totals.protein} g · C {totals.carbs} g · G{" "}
           {totals.fat} g
@@ -304,7 +347,7 @@ function MealForm({
       {error && <p className="text-sm text-destructive">{error}</p>}
       <DialogFooter>
         <Button onClick={handleSubmit} disabled={!canSubmit}>
-          {pending ? "Guardando…" : meal ? "Guardar cambios" : "Registrar"}
+          {pending ? s.saving : meal ? s.save : s.log}
         </Button>
       </DialogFooter>
     </div>

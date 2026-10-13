@@ -2,31 +2,34 @@ import { X } from "lucide-react";
 import { Suspense } from "react";
 import { deletePlanItem } from "@/actions/plan";
 import { PlanItemDialog } from "@/components/plan/plan-item-dialog";
-import { BASE_UNIT_LABELS, MEAL_TYPES, MEAL_TYPE_LABELS } from "@/lib/labels";
+import { getLocale, t, type Locale } from "@/lib/i18n";
+import {
+  BASE_UNIT_LABELS,
+  MEAL_TYPES,
+  MEAL_TYPE_LABELS,
+  WEEKDAY_LABELS,
+} from "@/lib/labels";
 import { getWeeklyPlan, type DayPlan } from "@/lib/queries/plan";
 import { listFoods } from "@/lib/queries/foods";
 import { cn } from "cn";
 
-const DAYS = [
-  "Lunes",
-  "Martes",
-  "Miércoles",
-  "Jueves",
-  "Viernes",
-  "Sábado",
-  "Domingo",
-];
+const S = {
+  es: {
+    title: "Dieta",
+    subtitle: "Tu plan semanal — distinto a lo que registrás cada día en Comidas.",
+    remove: (food: string) => `Quitar ${food}`,
+  },
+  en: {
+    title: "Diet",
+    subtitle: "Your weekly plan — separate from what you log each day in Meals.",
+    remove: (food: string) => `Remove ${food}`,
+  },
+};
 
 export default function PlanPage() {
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Dieta</h1>
-        <p className="text-sm text-muted-foreground">
-          Tu plan semanal — distinto a lo que registrás cada día en Comidas.
-        </p>
-      </div>
-      <Suspense fallback={<p className="text-muted-foreground">Cargando…</p>}>
+      <Suspense fallback={<p className="text-muted-foreground">…</p>}>
         <WeeklyGrid />
       </Suspense>
     </div>
@@ -34,13 +37,23 @@ export default function PlanPage() {
 }
 
 async function WeeklyGrid() {
-  const [plan, foods] = await Promise.all([getWeeklyPlan(), listFoods()]);
+  const [plan, foods, locale] = await Promise.all([
+    getWeeklyPlan(),
+    listFoods(),
+    getLocale(),
+  ]);
+  const s = t(S, locale);
   const today = (new Date().getDay() + 6) % 7; // 0 = lunes
 
   return (
-    <div className="overflow-x-auto pb-2">
+    <>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{s.title}</h1>
+        <p className="text-sm text-muted-foreground">{s.subtitle}</p>
+      </div>
+      <div className="overflow-x-auto pb-2">
       <div className="grid min-w-[72rem] grid-cols-7 gap-3">
-        {DAYS.map((day, d) => (
+        {WEEKDAY_LABELS[locale].map((day, d) => (
           <div key={day} className="flex flex-col gap-3">
             <h2
               className={cn(
@@ -50,20 +63,22 @@ async function WeeklyGrid() {
             >
               {day}
             </h2>
-            {MEAL_TYPES.map((t) => (
+            {MEAL_TYPES.map((mt) => (
               <MealSlot
-                key={t}
+                key={mt}
                 day={d}
-                type={t}
-                items={plan[d][t]}
+                type={mt}
+                items={plan[d][mt]}
                 foods={foods}
+                locale={locale}
               />
             ))}
             <DayTotals items={plan[d]} />
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -72,17 +87,20 @@ function MealSlot({
   type,
   items,
   foods,
+  locale,
 }: {
   day: number;
   type: (typeof MEAL_TYPES)[number];
   items: DayPlan[typeof type];
   foods: Awaited<ReturnType<typeof listFoods>>;
+  locale: Locale;
 }) {
+  const s = t(S, locale);
   return (
     <section className="flex min-h-24 flex-col gap-1 rounded-lg border border-border p-2">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground">
-          {MEAL_TYPE_LABELS[type]}
+          {MEAL_TYPE_LABELS[locale][type]}
         </span>
         <PlanItemDialog dayOfWeek={day} mealType={type} foods={foods} />
       </div>
@@ -100,7 +118,7 @@ function MealSlot({
             <form action={deletePlanItem.bind(null, it.id)}>
               <button
                 type="submit"
-                aria-label={`Quitar ${it.foodName}`}
+                aria-label={s.remove(it.foodName)}
                 className="hidden shrink-0 rounded p-0.5 text-muted-foreground hover:text-destructive group-hover:block"
               >
                 <X className="size-3.5" />

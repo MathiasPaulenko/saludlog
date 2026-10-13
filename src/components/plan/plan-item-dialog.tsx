@@ -13,10 +13,35 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BASE_UNIT_LABELS, MEAL_TYPE_LABELS, type MealType } from "@/lib/labels";
+import {
+  BASE_UNIT_LABELS,
+  MEAL_TYPE_LABELS,
+  WEEKDAY_LABELS,
+  type MealType,
+} from "@/lib/labels";
 import type { Food } from "@/db/schema";
+import { useLocale, useT } from "@/lib/use-locale";
 
-const DAYS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+const S = {
+  es: {
+    addIn: (meal: string) => `Agregar en ${meal}`,
+    food: "Alimento",
+    foodPlaceholder: "Ej: Pechuga de pollo",
+    amount: "Cantidad",
+    saving: "Guardando…",
+    add: "Agregar",
+    errorSelect: "Elegí un alimento del catálogo e indicá la cantidad.",
+  },
+  en: {
+    addIn: (meal: string) => `Add to ${meal}`,
+    food: "Food",
+    foodPlaceholder: "E.g.: Chicken breast",
+    amount: "Amount",
+    saving: "Saving…",
+    add: "Add",
+    errorSelect: "Pick a food from the catalog and enter the amount.",
+  },
+};
 
 export function PlanItemDialog({
   dayOfWeek,
@@ -32,6 +57,8 @@ export function PlanItemDialog({
   const [amount, setAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const s = useT(S);
+  const locale = useLocale();
 
   const selected = foods.find(
     (f) => f.name.toLowerCase() === foodName.trim().toLowerCase(),
@@ -39,7 +66,7 @@ export function PlanItemDialog({
 
   function handleSubmit() {
     if (!selected || Number(amount) <= 0) {
-      setError("Elegí un alimento del catálogo e indicá la cantidad.");
+      setError(s.errorSelect);
       return;
     }
     startTransition(async () => {
@@ -65,7 +92,7 @@ export function PlanItemDialog({
         variant="ghost"
         size="icon-sm"
         onClick={() => setOpen(true)}
-        aria-label={`Agregar en ${MEAL_TYPE_LABELS[mealType]}`}
+        aria-label={s.addIn(MEAL_TYPE_LABELS[locale][mealType])}
       >
         <Plus />
       </Button>
@@ -73,18 +100,18 @@ export function PlanItemDialog({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {DAYS[dayOfWeek]} — {MEAL_TYPE_LABELS[mealType]}
+              {WEEKDAY_LABELS[locale][dayOfWeek]} — {MEAL_TYPE_LABELS[locale][mealType]}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="plan-food">Alimento</Label>
+              <Label htmlFor="plan-food">{s.food}</Label>
               <Input
                 id="plan-food"
                 list="plan-food-catalog"
                 value={foodName}
                 onChange={(e) => setFoodName(e.target.value)}
-                placeholder="Ej: Pechuga de pollo"
+                placeholder={s.foodPlaceholder}
               />
               <datalist id="plan-food-catalog">
                 {foods.map((f) => (
@@ -98,7 +125,8 @@ export function PlanItemDialog({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="plan-amount">
-                Cantidad{selected ? ` (${BASE_UNIT_LABELS[selected.baseUnit]})` : ""}
+                {s.amount}
+                {selected ? ` (${BASE_UNIT_LABELS[selected.baseUnit]})` : ""}
               </Label>
               <Input
                 id="plan-amount"
@@ -114,7 +142,7 @@ export function PlanItemDialog({
           </div>
           <DialogFooter>
             <Button onClick={handleSubmit} disabled={pending}>
-              {pending ? "Guardando…" : "Agregar"}
+              {pending ? s.saving : s.add}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,13 +1,12 @@
 import type { Meal } from "@/db/schema";
+import type { Locale } from "@/lib/i18n-shared";
 
 export const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"] as const;
 export type MealType = Meal["type"];
 
-export const MEAL_TYPE_LABELS: Record<MealType, string> = {
-  breakfast: "Desayuno",
-  lunch: "Almuerzo",
-  dinner: "Cena",
-  snack: "Merienda",
+export const MEAL_TYPE_LABELS: Record<Locale, Record<MealType, string>> = {
+  es: { breakfast: "Desayuno", lunch: "Almuerzo", dinner: "Cena", snack: "Merienda" },
+  en: { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack" },
 };
 
 export const BASE_UNIT_LABELS: Record<string, string> = {
@@ -19,21 +18,17 @@ export const BASE_UNIT_LABELS: Record<string, string> = {
 export const WORKOUT_TYPES = ["gym", "cardio", "sport", "other"] as const;
 export type WorkoutType = (typeof WORKOUT_TYPES)[number];
 
-export const WORKOUT_TYPE_LABELS: Record<WorkoutType, string> = {
-  gym: "Gym",
-  cardio: "Cardio",
-  sport: "Deporte",
-  other: "Otro",
+export const WORKOUT_TYPE_LABELS: Record<Locale, Record<WorkoutType, string>> = {
+  es: { gym: "Gym", cardio: "Cardio", sport: "Deporte", other: "Otro" },
+  en: { gym: "Gym", cardio: "Cardio", sport: "Sport", other: "Other" },
 };
 
 export const HABIT_UNITS = ["check", "count", "hours", "ml"] as const;
 export type HabitUnit = (typeof HABIT_UNITS)[number];
 
-export const HABIT_UNIT_LABELS: Record<HabitUnit, string> = {
-  check: "Check",
-  count: "Cantidad",
-  hours: "Horas",
-  ml: "ml",
+export const HABIT_UNIT_LABELS: Record<Locale, Record<HabitUnit, string>> = {
+  es: { check: "Check", count: "Cantidad", hours: "Horas", ml: "ml" },
+  en: { check: "Check", count: "Count", hours: "Hours", ml: "ml" },
 };
 
 export const HABIT_UNIT_SUFFIX: Record<HabitUnit, string> = {
@@ -43,8 +38,20 @@ export const HABIT_UNIT_SUFFIX: Record<HabitUnit, string> = {
   ml: "ml",
 };
 
-export const GOAL_LABELS: Record<string, string> = {
-  daily_kcal: "Calorías diarias (kcal)",
-  daily_protein: "Proteína diaria (g)",
-  weekly_workouts: "Entrenos por semana",
+export const GOAL_LABELS: Record<Locale, Record<string, string>> = {
+  es: {
+    daily_kcal: "Calorías diarias (kcal)",
+    daily_protein: "Proteína diaria (g)",
+    weekly_workouts: "Entrenos por semana",
+  },
+  en: {
+    daily_kcal: "Daily calories (kcal)",
+    daily_protein: "Daily protein (g)",
+    weekly_workouts: "Workouts per week",
+  },
+};
+
+export const WEEKDAY_LABELS: Record<Locale, string[]> = {
+  es: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"],
+  en: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
 };

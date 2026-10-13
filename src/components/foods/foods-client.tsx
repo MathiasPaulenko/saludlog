@@ -16,8 +16,41 @@ import {
 } from "@/components/ui/table";
 import type { Food } from "@/db/schema";
 import { BASE_UNIT_LABELS } from "@/lib/labels";
+import { useT } from "@/lib/use-locale";
+
+const S = {
+  es: {
+    confirmDelete: (n: string) => `¿Eliminar "${n}"?`,
+    search: "Buscar alimento…",
+    newFood: "Nuevo alimento",
+    name: "Nombre",
+    proteinCol: "Prot. (g)",
+    carbsCol: "Carbs (g)",
+    fatCol: "Grasa (g)",
+    perCol: "Por",
+    editLabel: (n: string) => `Editar ${n}`,
+    deleteLabel: (n: string) => `Eliminar ${n}`,
+    noResults: "Sin resultados para esa búsqueda.",
+    empty: "Todavía no hay alimentos.",
+  },
+  en: {
+    confirmDelete: (n: string) => `Delete "${n}"?`,
+    search: "Search food…",
+    newFood: "New food",
+    name: "Name",
+    proteinCol: "Prot. (g)",
+    carbsCol: "Carbs (g)",
+    fatCol: "Fat (g)",
+    perCol: "Per",
+    editLabel: (n: string) => `Edit ${n}`,
+    deleteLabel: (n: string) => `Delete ${n}`,
+    noResults: "No results for that search.",
+    empty: "No foods yet.",
+  },
+};
 
 export function FoodsClient({ foods }: { foods: Food[] }) {
+  const s = useT(S);
   const [query, setQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Food | undefined>();
@@ -42,7 +75,7 @@ export function FoodsClient({ foods }: { foods: Food[] }) {
   }
 
   function handleDelete(food: Food) {
-    if (!window.confirm(`¿Eliminar "${food.name}"?`)) return;
+    if (!window.confirm(s.confirmDelete(food.name))) return;
     startTransition(async () => {
       const res = await deleteFood(food.id);
       if (!res.ok) window.alert(res.error);
@@ -55,12 +88,12 @@ export function FoodsClient({ foods }: { foods: Food[] }) {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar alimento…"
+          placeholder={s.search}
           className="max-w-xs"
         />
         <Button onClick={openCreate} className="ml-auto">
           <Plus />
-          Nuevo alimento
+          {s.newFood}
         </Button>
       </div>
 
@@ -68,12 +101,12 @@ export function FoodsClient({ foods }: { foods: Food[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nombre</TableHead>
+              <TableHead>{s.name}</TableHead>
               <TableHead className="text-right">kcal</TableHead>
-              <TableHead className="text-right">Prot. (g)</TableHead>
-              <TableHead className="text-right">Carbs (g)</TableHead>
-              <TableHead className="text-right">Grasa (g)</TableHead>
-              <TableHead className="text-right">Por</TableHead>
+              <TableHead className="text-right">{s.proteinCol}</TableHead>
+              <TableHead className="text-right">{s.carbsCol}</TableHead>
+              <TableHead className="text-right">{s.fatCol}</TableHead>
+              <TableHead className="text-right">{s.perCol}</TableHead>
               <TableHead className="w-24" />
             </TableRow>
           </TableHeader>
@@ -94,7 +127,7 @@ export function FoodsClient({ foods }: { foods: Food[] }) {
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => openEdit(food)}
-                      aria-label={`Editar ${food.name}`}
+                      aria-label={s.editLabel(food.name)}
                     >
                       <Pencil />
                     </Button>
@@ -102,7 +135,7 @@ export function FoodsClient({ foods }: { foods: Food[] }) {
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => handleDelete(food)}
-                      aria-label={`Eliminar ${food.name}`}
+                      aria-label={s.deleteLabel(food.name)}
                     >
                       <Trash2 />
                     </Button>
@@ -116,9 +149,7 @@ export function FoodsClient({ foods }: { foods: Food[] }) {
                   colSpan={7}
                   className="py-8 text-center text-muted-foreground"
                 >
-                  {query
-                    ? "Sin resultados para esa búsqueda."
-                    : "Todavía no hay alimentos."}
+                  {query ? s.noResults : s.empty}
                 </TableCell>
               </TableRow>
             )}

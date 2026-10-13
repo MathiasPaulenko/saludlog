@@ -1,5 +1,6 @@
 import type { Habit, HabitLog } from "@/db/schema";
 import { habitStats } from "@/lib/chart-data";
+import type { Locale } from "@/lib/i18n-shared";
 import type { Macros } from "@/lib/macros";
 
 export interface Insight {
@@ -21,6 +22,7 @@ const avg = (xs: number[]) =>
 export function sleepKcalInsight(
   sleepLogs: HabitLog[],
   dayTotals: (Macros & { date: string })[],
+  locale: Locale,
 ): Insight | null {
   const kcalByDate = new Map(dayTotals.map((d) => [d.date, d.kcal]));
   const low: number[] = [];
@@ -36,18 +38,28 @@ export function sleepKcalInsight(
   const a = Math.round(avg(low));
   const b = Math.round(avg(high));
   const diff = a - b;
+  const en = locale === "en";
   const verdict =
     Math.abs(diff) < 50
-      ? "El sueño no muestra relación clara con lo que comés."
+      ? en
+        ? "Sleep shows no clear relationship with what you eat."
+        : "El sueño no muestra relación clara con lo que comés."
       : diff > 0
-        ? `Los días con poco sueño comés ~${Math.abs(diff)} kcal más.`
-        : `Los días con poco sueño comés ~${Math.abs(diff)} kcal menos.`;
+        ? en
+          ? `On low-sleep days you eat ~${Math.abs(diff)} kcal more.`
+          : `Los días con poco sueño comés ~${Math.abs(diff)} kcal más.`
+        : en
+          ? `On low-sleep days you eat ~${Math.abs(diff)} kcal less.`
+          : `Los días con poco sueño comés ~${Math.abs(diff)} kcal menos.`;
+  const dayWord = en ? "days" : "días";
   return {
     key: "sleep-kcal",
-    title: "Sueño y calorías",
-    rule: "kcal promedio en días con sueño <6h vs ≥7h",
+    title: en ? "Sleep and calories" : "Sueño y calorías",
+    rule: en
+      ? "avg kcal on days with sleep <6h vs ≥7h"
+      : "kcal promedio en días con sueño <6h vs ≥7h",
     verdict,
-    detail: `<6h: ${a} kcal/día (${low.length} días) · ≥7h: ${b} kcal/día (${high.length} días)`,
+    detail: `<6h: ${a} kcal/${en ? "day" : "día"} (${low.length} ${dayWord}) · ≥7h: ${b} kcal/${en ? "day" : "día"} (${high.length} ${dayWord})`,
   };
 }
 
@@ -59,6 +71,7 @@ export function workoutsWeightInsight(
   workouts: { date: string }[],
   metrics: { date: string; weightKg: number }[],
   endDate: string,
+  locale: Locale,
 ): Insight | null {
   const monday = (d: string) => {
     const dt = new Date(`${d}T12:00:00`);
@@ -101,16 +114,24 @@ export function workoutsWeightInsight(
 
   const a = fmt1(avg(active.map((d) => d.delta)));
   const q = fmt1(avg(quiet.map((d) => d.delta)));
+  const en = locale === "en";
   const verdict =
     a < q
-      ? `Las semanas con más entrenos tu peso baja en promedio ${Math.abs(a - q)} kg más.`
-      : "Los entrenos semanales no muestran relación clara con el peso.";
+      ? en
+        ? `On weeks with more workouts your weight drops ${Math.abs(a - q)} kg more on average.`
+        : `Las semanas con más entrenos tu peso baja en promedio ${Math.abs(a - q)} kg más.`
+      : en
+        ? "Weekly workouts show no clear relationship with weight."
+        : "Los entrenos semanales no muestran relación clara con el peso.";
+  const wkWord = en ? "wk" : "sem";
   return {
     key: "workouts-weight",
-    title: "Entrenos y peso",
-    rule: "delta de peso medio semanal en semanas con ≥3 vs <3 sesiones",
+    title: en ? "Workouts and weight" : "Entrenos y peso",
+    rule: en
+      ? "avg weekly weight delta on weeks with ≥3 vs <3 sessions"
+      : "delta de peso medio semanal en semanas con ≥3 vs <3 sesiones",
     verdict,
-    detail: `≥3 sesiones: ${a > 0 ? "+" : ""}${a} kg/sem (${active.length} sem) · <3: ${q > 0 ? "+" : ""}${q} kg/sem (${quiet.length} sem)`,
+    detail: `≥3 ${en ? "sessions" : "sesiones"}: ${a > 0 ? "+" : ""}${a} kg/${wkWord} (${active.length} ${wkWord}) · <3: ${q > 0 ? "+" : ""}${q} kg/${wkWord} (${quiet.length} ${wkWord})`,
   };
 }
 
@@ -123,19 +144,29 @@ export function habitConsistencyInsight(
   logs: HabitLog[],
   rangeDays: string[],
   endDate: string,
+  locale: Locale,
 ): Insight | null {
   const stats = habitStats(habits, logs, rangeDays, endDate);
   if (stats.length === 0) return null;
   const overall = Math.round(avg(stats.map((h) => h.pct)));
   const best = [...stats].sort((a, b) => b.streak - a.streak || b.pct - a.pct)[0];
+  const en = locale === "en";
   return {
     key: "habit-consistency",
-    title: "Consistencia de hábitos",
-    rule: "adherencia media de 30 días vs tu hábito más consistente",
+    title: en ? "Habit consistency" : "Consistencia de hábitos",
+    rule: en
+      ? "30-day average adherence vs your most consistent habit"
+      : "adherencia media de 30 días vs tu hábito más consistente",
     verdict:
       best.streak >= 7
-        ? `Tu punto fuerte es ${best.name}: ${best.streak} días seguidos.`
-        : `${best.name} es tu hábito más consistente (${best.pct}%).`,
-    detail: `Media general: ${overall}% · ${best.name}: ${best.pct}% (racha ${best.streak}d)`,
+        ? en
+          ? `Your strength is ${best.name}: ${best.streak} days in a row.`
+          : `Tu punto fuerte es ${best.name}: ${best.streak} días seguidos.`
+        : en
+          ? `${best.name} is your most consistent habit (${best.pct}%).`
+          : `${best.name} es tu hábito más consistente (${best.pct}%).`,
+    detail: en
+      ? `Overall average: ${overall}% · ${best.name}: ${best.pct}% (streak ${best.streak}d)`
+      : `Media general: ${overall}% · ${best.name}: ${best.pct}% (racha ${best.streak}d)`,
   };
 }

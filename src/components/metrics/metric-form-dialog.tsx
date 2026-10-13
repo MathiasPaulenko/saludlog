@@ -13,6 +13,34 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { BodyMetric } from "@/db/schema";
+import { useT } from "@/lib/use-locale";
+
+const S = {
+  es: {
+    editEntry: "Editar registro",
+    logWeight: "Registrar peso",
+    date: "Fecha",
+    weight: "Peso (kg)",
+    fat: "% Grasa",
+    waist: "Cintura (cm)",
+    notes: "Notas",
+    optional: "Opcional",
+    saving: "Guardando…",
+    save: "Guardar",
+  },
+  en: {
+    editEntry: "Edit entry",
+    logWeight: "Log weight",
+    date: "Date",
+    weight: "Weight (kg)",
+    fat: "% Fat",
+    waist: "Waist (cm)",
+    notes: "Notes",
+    optional: "Optional",
+    saving: "Saving…",
+    save: "Save",
+  },
+};
 
 interface MetricFormDialogProps {
   defaultDate: string;
@@ -33,6 +61,7 @@ export function MetricFormDialog({
   size = "default",
   buttonClassName,
 }: MetricFormDialogProps) {
+  const s = useT(S);
   const [open, setOpen] = useState(false);
 
   return (
@@ -49,7 +78,7 @@ export function MetricFormDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{metric ? "Editar registro" : "Registrar peso"}</DialogTitle>
+            <DialogTitle>{metric ? s.editEntry : s.logWeight}</DialogTitle>
           </DialogHeader>
           {open && (
             <MetricForm
@@ -74,6 +103,7 @@ function MetricForm({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const s = useT(S);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -102,7 +132,7 @@ function MetricForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="metric-date">Fecha</Label>
+        <Label htmlFor="metric-date">{s.date}</Label>
         <Input
           id="metric-date"
           name="date"
@@ -113,7 +143,7 @@ function MetricForm({
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="metric-weight">Peso (kg)</Label>
+          <Label htmlFor="metric-weight">{s.weight}</Label>
           <Input
             id="metric-weight"
             name="weightKg"
@@ -125,7 +155,7 @@ function MetricForm({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="metric-fat">% Grasa</Label>
+          <Label htmlFor="metric-fat">{s.fat}</Label>
           <Input
             id="metric-fat"
             name="bodyFatPct"
@@ -137,7 +167,7 @@ function MetricForm({
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="metric-waist">Cintura (cm)</Label>
+          <Label htmlFor="metric-waist">{s.waist}</Label>
           <Input
             id="metric-waist"
             name="waistCm"
@@ -149,18 +179,18 @@ function MetricForm({
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="metric-notes">Notas</Label>
+        <Label htmlFor="metric-notes">{s.notes}</Label>
         <Input
           id="metric-notes"
           name="notes"
-          placeholder="Opcional"
+          placeholder={s.optional}
           defaultValue={metric?.notes ?? ""}
         />
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <DialogFooter>
         <Button type="submit" disabled={pending}>
-          {pending ? "Guardando…" : "Guardar"}
+          {pending ? s.saving : s.save}
         </Button>
       </DialogFooter>
     </form>
