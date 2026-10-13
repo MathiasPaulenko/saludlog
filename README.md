@@ -33,3 +33,8 @@ npm run db:demo     # regenera demo/saludlog-demo.db con datos de muestra
 - **Peso** (`/metrics`), **metas** (`/settings`), **reporte semanal** (`/weekly`), **insights** (`/insights`) con reglas explícitas.
 - **Export**: JSON completo y CSV por dominio desde `/settings`.
 - **PWA**: instalable (manifest + íconos + service worker básico).
+- **i18n**: español e inglés — toggle en el sidebar, persiste en cookie `lang`.
+
+## License
+
+MIT — ver [LICENSE](LICENSE).
