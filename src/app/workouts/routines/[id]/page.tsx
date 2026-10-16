@@ -95,7 +95,7 @@ function ExerciseCard({ item, s, locale }: { item: RoutineItemFull; s: (typeof S
             {cat?.primaryMuscles.map((m) => (
               <span
                 key={m}
-                className="rounded-md bg-primary/15 px-1.5 py-0.5 text-xs font-medium text-primary"
+                className="rounded-md bg-primary/15 px-2 py-0.5 text-sm font-medium text-primary"
               >
                 {muscleLabel(m)}
               </span>
@@ -103,7 +103,7 @@ function ExerciseCard({ item, s, locale }: { item: RoutineItemFull; s: (typeof S
             {cat?.secondaryMuscles?.slice(0, 2).map((m) => (
               <span
                 key={m}
-                className="rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
+                className="rounded-md bg-muted px-2 py-0.5 text-sm text-muted-foreground"
               >
                 {muscleLabel(m)}
               </span>
@@ -114,23 +114,23 @@ function ExerciseCard({ item, s, locale }: { item: RoutineItemFull; s: (typeof S
           <p className="font-mono text-lg font-semibold leading-none">
             {item.sets}×{item.reps}
           </p>
-          <p className="mt-0.5 text-[10px] text-muted-foreground">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             {s.sets}·{s.reps}
           </p>
         </div>
       </div>
       {cat && <ExerciseImages sourceId={cat.sourceId} name={item.exercise} />}
-      <div className="flex gap-3 text-xs text-muted-foreground">
+      <div className="flex gap-3 text-sm text-muted-foreground">
         {cat?.equipment && <span>{cat.equipment}</span>}
         {cat?.level && <span>· {cat.level}</span>}
       </div>
       {cat?.instructions && cat.instructions.length > 0 && (
         <details className="group">
-          <summary className="flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-primary">
+          <summary className="flex cursor-pointer list-none items-center gap-1 text-sm font-medium text-primary">
             {s.howTo}
             <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" />
           </summary>
-          <ol className="mt-2 flex list-decimal flex-col gap-1.5 pl-4 text-xs text-muted-foreground">
+          <ol className="mt-2 flex list-decimal flex-col gap-1.5 pl-4 text-sm text-muted-foreground">
             {cat.instructions.map((step, i) => (
               <li key={i}>{step}</li>
             ))}
@@ -246,15 +246,15 @@ async function RoutineContent({ params }: { params: Promise<{ id: string }> }) {
 
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{routine.name}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-base text-muted-foreground">
           {items.length} {s.exercises}
         </p>
         {routine.notes && (
-          <p className="mt-3 max-w-3xl text-sm text-muted-foreground">
+          <p className="mt-3 max-w-4xl text-base leading-relaxed text-muted-foreground">
             {routine.notes}
           </p>
         )}
-        <p className="mt-2 text-xs text-muted-foreground/70">{s.restNote}</p>
+        <p className="mt-2 text-sm text-muted-foreground/80">{s.restNote}</p>
       </div>
 
       <div className="flex flex-col gap-5">
@@ -262,10 +262,10 @@ async function RoutineContent({ params }: { params: Promise<{ id: string }> }) {
           <div key={g.label ?? g.items[0].id} className="flex flex-col gap-2">
             {g.label && (
               <div className="flex items-center gap-2">
-                <span className="flex size-6 items-center justify-center rounded-md bg-primary text-xs font-bold text-primary-foreground">
+                <span className="flex size-7 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
                   {g.label}
                 </span>
-                <span className="text-sm font-medium text-muted-foreground">
+                <span className="text-base font-medium text-muted-foreground">
                   {s.superset} {g.label}
                 </span>
               </div>
