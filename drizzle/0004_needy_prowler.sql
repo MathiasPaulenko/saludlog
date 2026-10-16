@@ -1,0 +1,1 @@
+ALTER TABLE `routine_items` ADD `optional` integer DEFAULT false;

@@ -17,6 +17,7 @@ const S = {
     sets: "series",
     reps: "reps",
     exercises: "ejercicios",
+    optional: "Opcional",
     primary: "Principal",
     secondary: "Secundarios",
     howTo: "Cómo hacerlo",
@@ -30,6 +31,7 @@ const S = {
     sets: "sets",
     reps: "reps",
     exercises: "exercises",
+    optional: "Optional",
     primary: "Primary",
     secondary: "Secondary",
     howTo: "How to do it",
@@ -65,6 +67,7 @@ type RoutineItemFull = {
   sets: number;
   reps: number;
   weightKg: number | null;
+  optional: boolean | null;
   superset: string | null;
   catalog: {
     sourceId: string;
@@ -90,7 +93,14 @@ function ExerciseCard({ item, s, locale }: { item: RoutineItemFull; s: (typeof S
     <div className="flex flex-1 flex-col gap-3 rounded-xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <h3 className="font-medium leading-tight">{item.exercise}</h3>
+          <h3 className="font-medium leading-tight">
+            {item.exercise}
+            {item.optional && (
+              <span className="ml-2 rounded-md border border-muted-foreground/30 px-1.5 py-0.5 align-middle text-xs font-normal text-muted-foreground">
+                {s.optional}
+              </span>
+            )}
+          </h3>
           <div className="flex flex-wrap gap-1.5">
             {cat?.primaryMuscles.map((m) => (
               <span
@@ -190,6 +200,7 @@ async function RoutineContent({ params }: { params: Promise<{ id: string }> }) {
       sets: i.sets,
       reps: i.reps,
       weightKg: i.weightKg,
+      optional: i.optional,
       superset,
       catalog: cat
         ? {

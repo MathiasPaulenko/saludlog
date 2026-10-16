@@ -116,6 +116,7 @@ export const routineItems = sqliteTable("routine_items", {
   sets: integer("sets").notNull(),
   reps: integer("reps").notNull(),
   weightKg: real("weight_kg"),
+  optional: integer("optional", { mode: "boolean" }).default(false),
 });
 
 export const trainingPlanItems = sqliteTable("training_plan_items", {
