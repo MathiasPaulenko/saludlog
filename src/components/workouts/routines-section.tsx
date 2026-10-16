@@ -1,6 +1,7 @@
 "use client";
 
-import { Play } from "lucide-react";
+import { Eye, Play } from "lucide-react";
+import Link from "next/link";
 import { useTransition } from "react";
 import { applyRoutine, deleteRoutine } from "@/actions/routines";
 import { ConfirmSubmit } from "@/components/confirm-submit";
@@ -21,6 +22,7 @@ const S = {
     title: "Rutinas",
     new: "Nueva rutina",
     empty: "Armá tu primera rutina y usála para loggear el entreno en un click.",
+    view: "Ver",
     edit: "Editar",
     delete: "Eliminar",
     confirmDelete: "¿Eliminar esta rutina?",
@@ -32,6 +34,7 @@ const S = {
     title: "Routines",
     new: "New routine",
     empty: "Build your first routine and use it to log the workout in one click.",
+    view: "View",
     edit: "Edit",
     delete: "Delete",
     confirmDelete: "Delete this routine?",
@@ -73,6 +76,13 @@ export function RoutinesSection({
               <CardHeader>
                 <CardTitle className="text-base">{r.name}</CardTitle>
                 <CardAction className="flex items-center gap-1">
+                  <Link
+                    href={`/workouts/routines/${r.id}`}
+                    className="inline-flex h-7 items-center gap-1 rounded-lg px-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    <Eye className="size-3.5" />
+                    {s.view}
+                  </Link>
                   <RoutineFormDialog
                     exercises={exercises}
                     routine={r}

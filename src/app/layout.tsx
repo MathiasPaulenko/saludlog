@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import { AppNav } from "@/components/app-nav";
 import { LangToggle } from "@/components/lang-toggle";
 import { SwRegister } from "@/components/sw-register";
@@ -52,7 +53,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               </span>
               saludlog
             </span>
-            <AppNav />
+            <Suspense>
+              <AppNav />
+            </Suspense>
             <div className="mt-auto flex flex-col gap-1 px-3">
               <LangToggle />
               <ThemeToggle />
