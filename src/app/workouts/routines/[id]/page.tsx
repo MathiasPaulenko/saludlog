@@ -4,12 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { applyRoutine } from "@/actions/routines";
+import { ExerciseImages } from "@/components/workouts/exercise-images";
 import { db } from "@/db";
 import { exercises, routineItems, routines } from "@/db/schema";
 import { getLocale, type Locale } from "@/lib/i18n";
-
-const IMG =
-  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises";
 
 const S = {
   es: {
@@ -121,20 +119,7 @@ function ExerciseCard({ item, s, locale }: { item: RoutineItemFull; s: (typeof S
           </p>
         </div>
       </div>
-      {cat && (
-        <div className="flex gap-2">
-          {[0, 1].map((n) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={n}
-              src={`${IMG}/${cat.sourceId}/${n}.jpg`}
-              alt={item.exercise}
-              loading="lazy"
-              className="h-44 w-1/2 rounded-lg border border-border bg-muted object-contain"
-            />
-          ))}
-        </div>
-      )}
+      {cat && <ExerciseImages sourceId={cat.sourceId} name={item.exercise} />}
       <div className="flex gap-3 text-xs text-muted-foreground">
         {cat?.equipment && <span>{cat.equipment}</span>}
         {cat?.level && <span>· {cat.level}</span>}

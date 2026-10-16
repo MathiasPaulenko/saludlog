@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { AppNav } from "@/components/app-nav";
 import { LangToggle } from "@/components/lang-toggle";
@@ -8,7 +8,7 @@ import { SwRegister } from "@/components/sw-register";
 import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
-const geistSans = Geist({
+const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
@@ -41,12 +41,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="es"
       suppressHydrationWarning
-      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`dark ${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <div className="flex min-h-screen">
-          <aside className="flex w-56 shrink-0 flex-col gap-4 border-r border-border bg-sidebar py-5">
+          <aside className="sticky top-0 flex h-screen w-56 shrink-0 flex-col gap-4 overflow-y-auto border-r border-border bg-sidebar py-5">
             <span className="flex items-center gap-2 px-6 text-lg font-semibold tracking-tight">
               <span className="flex size-5 items-center justify-center rounded-md bg-primary text-primary-foreground">
                 <Check className="size-3.5" strokeWidth={3} />
@@ -61,7 +61,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <ThemeToggle />
             </div>
           </aside>
-          <main className="flex-1 px-8 py-6">{children}</main>
+          <main className="flex-1 px-6 py-6 sm:px-10 lg:px-14">
+            <div className="mx-auto w-full max-w-[1500px]">{children}</div>
+          </main>
         </div>
         <SwRegister />
       </body>
