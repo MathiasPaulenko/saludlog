@@ -155,7 +155,7 @@ function DayColumn({
                   })
                 }
                 aria-label={s.logOn(it.title, day)}
-                className="hidden shrink-0 rounded p-0.5 text-primary hover:bg-primary/10 group-hover:block"
+                className="shrink-0 rounded p-0.5 text-primary opacity-0 transition-opacity hover:bg-primary/10 group-hover:opacity-100"
               >
                 <Play className="size-3.5" />
               </button>
@@ -164,7 +164,7 @@ function DayColumn({
               <button
                 type="submit"
                 aria-label={s.remove(it.title)}
-                className="hidden shrink-0 rounded p-0.5 text-muted-foreground hover:text-destructive group-hover:block"
+                className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
               >
                 <X className="size-3.5" />
               </button>

@@ -119,7 +119,7 @@ function MealSlot({
               <button
                 type="submit"
                 aria-label={s.remove(it.foodName)}
-                className="hidden shrink-0 rounded p-0.5 text-muted-foreground hover:text-destructive group-hover:block"
+                className="shrink-0 rounded p-0.5 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
               >
                 <X className="size-3.5" />
               </button>
