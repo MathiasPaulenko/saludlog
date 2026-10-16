@@ -5,9 +5,9 @@ export const MEAL_TYPES = [
   "breakfast",
   "mid_morning",
   "lunch",
+  "snack",
   "pre_workout",
   "post_workout",
-  "snack",
   "dinner",
 ] as const;
 export type MealType = Meal["type"];

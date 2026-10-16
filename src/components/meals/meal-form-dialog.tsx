@@ -97,7 +97,8 @@ function guessMealType(): MealType {
   if (h < 10) return "breakfast";
   if (h < 12) return "mid_morning";
   if (h < 16) return "lunch";
-  if (h < 19) return "pre_workout";
+  if (h < 18) return "snack";
+  if (h < 20) return "pre_workout";
   if (h < 21) return "post_workout";
   return "dinner";
 }
