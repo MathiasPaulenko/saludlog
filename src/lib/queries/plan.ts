@@ -2,7 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { connection } from "next/server";
 import { db } from "@/db";
 import { foods, mealPlanItems } from "@/db/schema";
-import type { MealType } from "@/lib/labels";
+import { MEAL_TYPES, type MealType } from "@/lib/labels";
 import { computeItemMacros, type Macros } from "@/lib/macros";
 
 export interface PlanItem {
@@ -28,12 +28,9 @@ export async function getWeeklyPlan(): Promise<WeeklyPlan> {
   const plan: WeeklyPlan = Object.fromEntries(
     Array.from({ length: 7 }, (_, d) => [
       d,
-      {
-        breakfast: [],
-        lunch: [],
-        dinner: [],
-        snack: [],
-      } satisfies DayPlan,
+      Object.fromEntries(
+        MEAL_TYPES.map((mt) => [mt, [] as PlanItem[]]),
+      ) as DayPlan,
     ]),
   );
 

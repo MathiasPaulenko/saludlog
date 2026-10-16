@@ -1,12 +1,36 @@
 import type { Meal } from "@/db/schema";
 import type { Locale } from "@/lib/i18n-shared";
 
-export const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"] as const;
+export const MEAL_TYPES = [
+  "breakfast",
+  "mid_morning",
+  "lunch",
+  "pre_workout",
+  "post_workout",
+  "snack",
+  "dinner",
+] as const;
 export type MealType = Meal["type"];
 
 export const MEAL_TYPE_LABELS: Record<Locale, Record<MealType, string>> = {
-  es: { breakfast: "Desayuno", lunch: "Almuerzo", dinner: "Cena", snack: "Merienda" },
-  en: { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack" },
+  es: {
+    breakfast: "Desayuno",
+    mid_morning: "Media mañana",
+    lunch: "Almuerzo",
+    pre_workout: "Pre-entreno",
+    post_workout: "Post-entreno",
+    dinner: "Cena",
+    snack: "Merienda",
+  },
+  en: {
+    breakfast: "Breakfast",
+    mid_morning: "Mid-morning",
+    lunch: "Lunch",
+    pre_workout: "Pre-workout",
+    post_workout: "Post-workout",
+    dinner: "Dinner",
+    snack: "Snack",
+  },
 };
 
 export const BASE_UNIT_LABELS: Record<string, string> = {

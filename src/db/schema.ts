@@ -34,8 +34,17 @@ export const foods = sqliteTable("foods", {
 export const meals = sqliteTable("meals", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   date: text("date").notNull(),
-  type: text("type", { enum: ["breakfast", "lunch", "dinner", "snack"] })
-    .notNull(),
+  type: text("type", {
+    enum: [
+      "breakfast",
+      "mid_morning",
+      "lunch",
+      "pre_workout",
+      "post_workout",
+      "snack",
+      "dinner",
+    ],
+  }).notNull(),
   notes: text("notes"),
   createdAt: createdAt(),
 });
@@ -55,7 +64,15 @@ export const mealPlanItems = sqliteTable("meal_plan_items", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   dayOfWeek: integer("day_of_week").notNull(), // 0 = lunes … 6 = domingo
   mealType: text("meal_type", {
-    enum: ["breakfast", "lunch", "dinner", "snack"],
+    enum: [
+      "breakfast",
+      "mid_morning",
+      "lunch",
+      "pre_workout",
+      "post_workout",
+      "snack",
+      "dinner",
+    ],
   }).notNull(),
   foodId: integer("food_id")
     .notNull()
