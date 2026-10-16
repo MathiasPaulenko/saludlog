@@ -83,9 +83,9 @@ function render(size) {
       const inY = Math.max(0, corner - y, y - (size - corner));
       const inside = inX * inX + inY * inY <= corner * corner;
       if (!inside) continue;
-      px[i] = 0x0c;
-      px[i + 1] = 0x11;
-      px[i + 2] = 0x0c;
+      px[i] = 0x12;
+      px[i + 1] = 0x14;
+      px[i + 2] = 0x13;
       px[i + 3] = 255;
       // check lima
       const d = Math.min(
@@ -93,9 +93,9 @@ function render(size) {
         distToSegment(x, y, cx1, cy1, cx2, cy2),
       );
       if (d <= stroke / 2) {
-        px[i] = 0xf0;
-        px[i + 1] = 0x55;
-        px[i + 2] = 0x33;
+        px[i] = 0x22;
+        px[i + 1] = 0xc5;
+        px[i + 2] = 0x5e;
       }
     }
   }
