@@ -130,7 +130,7 @@ function ExerciseCard({ item, s, locale }: { item: RoutineItemFull; s: (typeof S
               src={`${IMG}/${cat.sourceId}/${n}.jpg`}
               alt={item.exercise}
               loading="lazy"
-              className="h-28 w-1/2 rounded-lg border border-border bg-muted object-cover"
+              className="h-44 w-1/2 rounded-lg border border-border bg-muted object-contain"
             />
           ))}
         </div>
