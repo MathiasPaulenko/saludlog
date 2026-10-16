@@ -94,9 +94,11 @@ interface MealFormDialogProps {
 
 function guessMealType(): MealType {
   const h = new Date().getHours();
-  if (h < 11) return "breakfast";
+  if (h < 10) return "breakfast";
+  if (h < 12) return "mid_morning";
   if (h < 16) return "lunch";
-  if (h < 20) return "snack";
+  if (h < 19) return "pre_workout";
+  if (h < 21) return "post_workout";
   return "dinner";
 }
 
