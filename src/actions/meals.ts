@@ -1,18 +1,19 @@
 "use server";
 
 import { format } from "date-fns";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
-import { foods, mealItems, meals } from "@/db/schema";
+import { foods, mealItems, mealPlanItems, meals } from "@/db/schema";
 import { actionStrings } from "@/lib/i18n";
+import { MEAL_TYPES, type MealType } from "@/lib/labels";
 import type { ActionResult } from "@/lib/types";
 
 const mealSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida"),
-  type: z.enum(["breakfast", "lunch", "dinner", "snack"]),
+  type: z.enum(MEAL_TYPES),
   notes: z.string().trim().max(500).optional(),
   items: z
     .array(
@@ -88,6 +89,41 @@ export async function updateMeal(
 
   revalidateMeals();
   return { ok: true };
+}
+
+export async function logPlannedMeal(
+  dayOfWeek: number,
+  mealType: MealType,
+): Promise<void> {
+  if (!z.number().int().min(0).max(6).safeParse(dayOfWeek).success) return;
+  if (!z.enum(MEAL_TYPES).safeParse(mealType).success) return;
+
+  const planned = db
+    .select({ foodId: mealPlanItems.foodId, amount: mealPlanItems.amount })
+    .from(mealPlanItems)
+    .where(
+      and(
+        eq(mealPlanItems.dayOfWeek, dayOfWeek),
+        eq(mealPlanItems.mealType, mealType),
+      ),
+    )
+    .all();
+  if (planned.length === 0) return;
+
+  const today = format(new Date(), "yyyy-MM-dd");
+  db.transaction((tx) => {
+    const meal = tx
+      .insert(meals)
+      .values({ date: today, type: mealType })
+      .returning({ id: meals.id })
+      .get();
+    if (!meal) throw new Error("Failed to insert meal");
+    tx.insert(mealItems)
+      .values(planned.map((i) => ({ mealId: meal.id, ...i })))
+      .run();
+  });
+
+  revalidateMeals();
 }
 
 export async function deleteMeal(mealId: number): Promise<void> {

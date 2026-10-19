@@ -1,5 +1,6 @@
-import { X } from "lucide-react";
+import { Utensils, X } from "lucide-react";
 import { Suspense } from "react";
+import { logPlannedMeal } from "@/actions/meals";
 import { deletePlanItem } from "@/actions/plan";
 import { PlanItemDialog } from "@/components/plan/plan-item-dialog";
 import { getLocale, t, type Locale } from "@/lib/i18n";
@@ -18,11 +19,13 @@ const S = {
     title: "Dieta",
     subtitle: "Tu plan semanal — distinto a lo que registrás cada día en Comidas.",
     remove: (food: string) => `Quitar ${food}`,
+    logToday: "Anotar esta comida en hoy",
   },
   en: {
     title: "Diet",
     subtitle: "Your weekly plan — separate from what you log each day in Meals.",
     remove: (food: string) => `Remove ${food}`,
+    logToday: "Log this meal for today",
   },
 };
 
@@ -102,7 +105,21 @@ function MealSlot({
         <span className="text-xs font-medium text-muted-foreground">
           {MEAL_TYPE_LABELS[locale][type]}
         </span>
-        <PlanItemDialog dayOfWeek={day} mealType={type} foods={foods} />
+        <span className="flex items-center gap-0.5">
+          {items.length > 0 && (
+            <form action={logPlannedMeal.bind(null, day, type)}>
+              <button
+                type="submit"
+                title={s.logToday}
+                aria-label={s.logToday}
+                className="rounded p-0.5 text-muted-foreground transition-colors hover:text-primary"
+              >
+                <Utensils className="size-3.5" />
+              </button>
+            </form>
+          )}
+          <PlanItemDialog dayOfWeek={day} mealType={type} foods={foods} />
+        </span>
       </div>
       <ul className="flex flex-col">
         {items.map((it) => (
